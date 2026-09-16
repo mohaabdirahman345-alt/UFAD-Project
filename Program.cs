@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UnifiedFreelanceArtisansDirectory.Data;
@@ -85,6 +86,20 @@ else
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
+
+// Azure App Service (and most PaaS hosts) terminate TLS at their own edge
+// and forward plain HTTP to the app, setting X-Forwarded-Proto. Without this,
+// UseHttpsRedirection and Identity's secure-cookie policy can't tell the
+// original request was HTTPS, which either breaks login or causes a redirect
+// loop. KnownNetworks/KnownProxies are cleared because Azure's edge isn't a
+// fixed, enumerable IP range.
+var forwardedHeadersOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

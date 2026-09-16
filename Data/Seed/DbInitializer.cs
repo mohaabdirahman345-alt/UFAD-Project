@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using UnifiedFreelanceArtisansDirectory.Domain.Entities;
 using UnifiedFreelanceArtisansDirectory.Domain.Enums;
 
@@ -14,6 +16,11 @@ namespace UnifiedFreelanceArtisansDirectory.Data.Seed;
 /// </summary>
 public static class DbInitializer
 {
+    // Used automatically only in Development. Outside Development, the
+    // administrator and demo-account passwords must come from configuration
+    // (e.g. Seed:AdminPassword / Seed:DemoAccountPassword as Azure App
+    // Service settings) — this value is published in the README and thesis
+    // appendix, so it must never be the live administrator's password.
     private const string DemoPassword = "Garowe@2026";
 
     public static async Task RunAsync(IServiceProvider services)
@@ -21,11 +28,13 @@ public static class DbInitializer
         var context = services.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
 
+        var configuration = services.GetRequiredService<IConfiguration>();
+        var env = services.GetRequiredService<IHostEnvironment>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
         await SeedRolesAsync(roleManager);
-        await SeedAdministratorAsync(userManager);
+        await SeedAdministratorAsync(userManager, configuration, env);
 
         if (await context.Categories.AnyAsync())
         {
@@ -34,7 +43,7 @@ public static class DbInitializer
         }
 
         var categories = await SeedCategoriesAndSkillsAsync(context);
-        await SeedDemoAccountsAsync(context, userManager, categories);
+        await SeedDemoAccountsAsync(context, userManager, categories, configuration, env);
     }
 
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
@@ -48,9 +57,24 @@ public static class DbInitializer
         }
     }
 
-    private static async Task SeedAdministratorAsync(UserManager<ApplicationUser> userManager)
+    private static async Task SeedAdministratorAsync(UserManager<ApplicationUser> userManager, IConfiguration configuration, IHostEnvironment env)
     {
-        const string adminEmail = "admin@garoweartisans.so";
+        var adminEmail = configuration["Seed:AdminEmail"] ?? "admin@garoweartisans.so";
+        var adminPassword = configuration["Seed:AdminPassword"];
+
+        if (string.IsNullOrEmpty(adminPassword))
+        {
+            if (!env.IsDevelopment())
+            {
+                // Refuse to auto-create an administrator with a published,
+                // guessable password outside local development. Set
+                // Seed:AdminPassword (e.g. as an App Service setting) to a
+                // strong, private password to enable this on a live deployment.
+                return;
+            }
+
+            adminPassword = DemoPassword;
+        }
 
         if (await userManager.FindByEmailAsync(adminEmail) is not null)
         {
@@ -66,7 +90,7 @@ public static class DbInitializer
             LastName = "Administrator"
         };
 
-        var result = await userManager.CreateAsync(admin, DemoPassword);
+        var result = await userManager.CreateAsync(admin, adminPassword);
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(admin, "Administrator");
@@ -120,8 +144,19 @@ public static class DbInitializer
     private static async Task SeedDemoAccountsAsync(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
-        Dictionary<string, Category> categories)
+        Dictionary<string, Category> categories,
+        IConfiguration configuration,
+        IHostEnvironment env)
     {
+        // Same reasoning as the administrator password: fall back to the
+        // published demo password only in Development. On a live deployment,
+        // set Seed:DemoAccountPassword to something not published anywhere.
+        var demoPassword = configuration["Seed:DemoAccountPassword"];
+        if (string.IsNullOrEmpty(demoPassword))
+        {
+            demoPassword = env.IsDevelopment() ? DemoPassword : Guid.NewGuid().ToString("N") + "Aa1!";
+        }
+
         var serviceProviderSeeds = new (string First, string Last, string Category, string Headline, int Years, decimal Rate, string Address, string Phone)[]
         {
             ("Cabdirisaaq", "Warsame", "Carpentry", "Custom cabinetry and furniture repair, 12 years in Garowe", 12, 15, "Boocame", "090111222"),
@@ -153,7 +188,7 @@ public static class DbInitializer
                 LastName = seed.Last
             };
 
-            var result = await userManager.CreateAsync(user, DemoPassword);
+            var result = await userManager.CreateAsync(user, demoPassword);
             if (!result.Succeeded)
             {
                 continue;
@@ -230,7 +265,7 @@ public static class DbInitializer
                 LastName = seed.Last
             };
 
-            var result = await userManager.CreateAsync(user, DemoPassword);
+            var result = await userManager.CreateAsync(user, demoPassword);
             if (!result.Succeeded)
             {
                 continue;
