@@ -1,0 +1,15 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Pages.ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="page-panel">
+    <h1>Something went wrong</h1>
+    <p>An unexpected error occurred while processing your request.</p>
+    @if (Model.ShowRequestId)
+    {
+        <p><strong>Request ID:</strong> <code>@Model.RequestId</code></p>
+    }
+    <a class="btn-artisan-primary" asp-page="/Index">Return home</a>
+</div>

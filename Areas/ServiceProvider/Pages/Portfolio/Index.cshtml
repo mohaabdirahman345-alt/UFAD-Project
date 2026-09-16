@@ -1,0 +1,80 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.ServiceProvider.Pages.Portfolio.IndexModel
+@{
+    ViewData["Title"] = "Manage Portfolio";
+}
+
+    <p class="text-muted">Showcase your best work — clients see this on your public profile.</p>
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <form id="add-item" method="post" asp-page-handler="Add" enctype="multipart/form-data" class="artisan-card artisan-form">
+                <h3 style="font-size:1.1rem;">Add a portfolio item</h3>
+                <div asp-validation-summary="ModelOnly" class="text-danger-artisan mb-2"></div>
+
+                <label asp-for="NewItem.Title">Title</label>
+                <input asp-for="NewItem.Title" class="form-control" />
+
+                <label asp-for="NewItem.Description">Description</label>
+                <textarea asp-for="NewItem.Description" rows="3" class="form-control"></textarea>
+
+                <label asp-for="NewItem.CompletedOn">Date completed</label>
+                <input asp-for="NewItem.CompletedOn" type="date" class="form-control" />
+
+                <label asp-for="NewItem.Image">Photo</label>
+                <input asp-for="NewItem.Image" type="file" accept="image/*" class="form-control" />
+
+                <button type="submit" class="btn-artisan-primary">Add Item</button>
+            </form>
+        </div>
+
+        <div class="col-lg-7">
+            @if (Model.Profile.PortfolioItems.Count == 0)
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">📁</div>
+                    <div class="empty-body">
+                        <div class="empty-title">No portfolio items yet</div>
+                        <div class="empty-desc">Showcase your best work — clients see this on your public profile. Add photos, descriptions, and completion dates to attract more clients.</div>
+                        <div class="empty-actions">
+                            <a class="btn-artisan-primary" href="#add-item">Add your first item</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var item in Model.Profile.PortfolioItems)
+                    {
+                        <div class="col-md-6">
+                            <div class="artisan-card card-flat">
+                                <img src="@item.ImagePath" alt="@item.Title" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:0.6rem;" />
+                                <strong>@item.Title</strong>
+                                <p style="font-size:0.9rem;color:var(--color-text-secondary);">@item.Description</p>
+                                <div class="d-flex gap-2 mb-2">
+                                    <button type="button" class="btn-artisan-outline btn-sm-artisan" onclick="document.getElementById('edit-@item.Id').classList.toggle('d-none')">Edit</button>
+                                    <form method="post" asp-page-handler="Delete" asp-route-portfolioItemId="@item.Id" data-confirm="Remove this portfolio item?">
+                                        <button type="submit" class="btn-artisan-danger btn-sm-artisan">Remove</button>
+                                    </form>
+                                </div>
+                                <form method="post" asp-page-handler="Edit" asp-route-portfolioItemId="@item.Id" id="edit-@item.Id" class="d-none artisan-form" style="border-top:1px solid var(--color-border);padding-top:0.75rem;">
+                                    <label>Title</label>
+                                    <input class="form-control" name="editTitle" value="@item.Title" />
+                                    <label>Description</label>
+                                    <textarea class="form-control" name="editDescription" rows="2">@item.Description</textarea>
+                                    <label>Date completed</label>
+                                    <input class="form-control" type="date" name="editCompletedOn" value="@item.CompletedOn.ToString("yyyy-MM-dd")" />
+                                    <button type="submit" class="btn-artisan-primary btn-sm-artisan">Save</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>

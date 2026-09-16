@@ -1,0 +1,186 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var currentUser = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
+    var userAvatar = currentUser?.ProfileImagePath;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — UFAD Garowe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container d-flex align-items-center">
+                <a class="brand" asp-area="" asp-page="/Index">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3L4 7.5V14.5C4 19.2 7.4 23.5 12 24.5C16.6 23.5 20 19.2 20 14.5V7.5L12 3Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M8.5 13.5L11 16L15.5 10" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    UFAD Garowe
+                </a>
+                <button class="nav-mobile-toggle" id="navMobileToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="siteNavMenu">
+                    <span></span><span></span><span></span>
+                </button>
+                <nav class="site-nav" id="siteNavMenu" role="navigation" aria-label="Main">
+                    <a class="site-nav-item" asp-area="" asp-page="/Index">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L12 2l9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Home
+                    </a>
+                    <a class="site-nav-item" asp-area="" asp-page="/Browse">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        Find Experts
+                    </a>
+                    <a class="site-nav-item" href="#why-ufad">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Why UFAD
+                    </a>
+                    <a class="site-nav-item" href="#faq">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        FAQ
+                    </a>
+                </nav>
+                <div class="header-actions">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        if (User.IsInRole("Administrator"))
+                        {
+                            <a class="btn-artisan-outline btn-sm-artisan" asp-area="Admin" asp-page="/Dashboard">Admin Panel</a>
+                        }
+                        else if (User.IsInRole("ServiceProvider"))
+                        {
+                            <a class="btn-artisan-outline btn-sm-artisan" asp-area="ServiceProvider" asp-page="/Dashboard">Service Provider Dashboard</a>
+                        }
+                        else if (User.IsInRole("Client"))
+                        {
+                            <a class="btn-artisan-outline btn-sm-artisan" asp-area="Client" asp-page="/Dashboard">My Dashboard</a>
+                        }
+                        <div class="dropdown d-inline-block ms-1">
+                            <button type="button" class="profile-avatar-btn" data-bs-toggle="dropdown" aria-expanded="false" title="Account Menu">
+                                @if (!string.IsNullOrEmpty(userAvatar))
+                                {
+                                    <img src="@userAvatar" alt="Avatar" class="avatar-topbar-img" />
+                                }
+                                else
+                                {
+                                    <span class="avatar-initial">@(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")</span>
+                                }
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end profile-dropdown-menu shadow-lg border-0 p-3 mt-2">
+                                <div class="profile-dropdown-header d-flex align-items-center gap-2 pb-3 mb-2 border-bottom">
+                                    <div class="profile-avatar-icon flex-shrink-0" style="overflow: hidden;">
+                                        @if (!string.IsNullOrEmpty(userAvatar))
+                                        {
+                                            <img src="@userAvatar" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        }
+                                    </div>
+                                    <div class="text-truncate" style="max-width: 210px;">
+                                        <div class="fw-semibold text-dark text-truncate" style="font-size: 0.875rem;" title="@User.Identity?.Name">@User.Identity?.Name</div>
+                                    </div>
+                                </div>
+
+                                <div class="profile-dropdown-section mb-3">
+                                    <label class="form-label text-muted extra-small text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Translation</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light text-muted border-end-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"/><path d="M2 12h20"/></svg>
+                                        </span>
+                                        <select class="form-select form-select-sm border-start-0 bg-light" aria-label="Language">
+                                            <option value="en" selected>English</option>
+                                            <option value="so">Soomaali</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="profile-dropdown-section mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="text-muted extra-small text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Appearance</span>
+                                        <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                                            <span class="theme-toggle-icon icon-sun">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                                            </span>
+                                            <span class="theme-toggle-icon icon-moon d-none">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"/></svg>
+                                            </span>
+                                            <span class="themeLabelText extra-small fw-semibold ms-1">Light</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-top">
+                                    <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="m-0">
+                                        <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2 rounded-2 py-2 px-2 fw-medium">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                            <span>Log Out</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="btn-artisan-outline btn-sm-artisan" asp-area="Identity" asp-page="/Account/Login">Log In</a>
+                        <a class="btn-artisan-primary btn-sm-artisan" asp-area="Identity" asp-page="/Account/Register">Join the Directory</a>
+                    }
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="page-body" tabindex="-1">
+            @RenderBody()
+        </main>
+
+        <footer class="site-footer">
+            <div class="container d-flex flex-wrap justify-content-between gap-4">
+                <div class="footer-contact">
+                    <h5>UFAD Garowe</h5>
+                    <p>Connecting clients with trusted service providers across Garowe — electricians, carpenters, tailors, developers, and more.</p>
+                </div>
+                <div>
+                    <h5>Directory</h5>
+                    <p><a asp-area="" asp-page="/Browse">Browse all categories</a></p>
+                    <p><a asp-area="Identity" asp-page="/Account/Register">Join as a Service Provider</a></p>
+                </div>
+                <div>
+                    <h5>Account</h5>
+                    <p><a asp-area="Identity" asp-page="/Account/Login">Log in</a></p>
+                    <p><a asp-area="Identity" asp-page="/Account/Register">Create an account</a></p>
+                </div>
+                <div class="footer-contact">
+                    <h5>Contact</h5>
+                    <p>Garowe, Puntland, Somalia</p>
+                    <p>hello@garoweartisans.so</p>
+                </div>
+            </div>
+            <div class="container footer-bottom">
+                &copy; @DateTime.UtcNow.Year UFAD Garowe. All rights reserved.
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

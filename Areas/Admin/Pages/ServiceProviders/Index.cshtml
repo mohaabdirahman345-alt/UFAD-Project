@@ -1,0 +1,183 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Admin.Pages.ServiceProviders.IndexModel
+@{
+    ViewData["Title"] = "Manage Service Providers";
+}
+
+    <p class="text-muted">Approve, reject, and verify service provider profiles.</p>
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+    }
+
+    <table class="table-artisan">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Rating</th>
+                <th>Approval</th>
+                <th>Verification</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var serviceProvider in Model.ServiceProviders)
+            {
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(serviceProvider.ProfileImagePath))
+                            {
+                                <img src="@serviceProvider.ProfileImagePath" alt="@serviceProvider.FullName" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;" />
+                            }
+                            else
+                            {
+                                <div style="width:36px;height:36px;border-radius:50%;background:var(--color-navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">@serviceProvider.FullName.Substring(0, 1)</div>
+                            }
+                            <div><strong>@serviceProvider.FullName</strong><br /><span class="text-note">@serviceProvider.Headline</span></div>
+                        </div>
+                    </td>
+                    <td>@serviceProvider.CategoryName</td>
+                    <td>★ @serviceProvider.AverageRating.ToString("0.0") (@serviceProvider.ReviewCount)</td>
+                    <td>
+                        @switch (serviceProvider.ApprovalStatus)
+                        {
+                            case UnifiedFreelanceArtisansDirectory.Domain.Enums.ApprovalStatus.Approved:
+                                <span class="badge-artisan badge-verified">Approved</span>
+                                break;
+                            case UnifiedFreelanceArtisansDirectory.Domain.Enums.ApprovalStatus.PendingApproval:
+                                <span class="badge-artisan badge-pending">Pending Review</span>
+                                break;
+                            case UnifiedFreelanceArtisansDirectory.Domain.Enums.ApprovalStatus.Rejected:
+                                <span class="badge-artisan badge-danger">Rejected</span>
+                                break;
+                            default:
+                                <span class="badge-artisan badge-neutral">Draft</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        @if (serviceProvider.IsVerified)
+                        {
+                            <span class="badge-artisan badge-verified">Verified</span>
+                        }
+                        else
+                        {
+                            <span class="badge-artisan badge-neutral">Unverified</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column gap-1">
+                            @if (serviceProvider.ApprovalStatus == UnifiedFreelanceArtisansDirectory.Domain.Enums.ApprovalStatus.PendingApproval)
+                            {
+                                <form method="post" asp-page-handler="Approve" asp-route-serviceProviderProfileId="@serviceProvider.Id">
+                                    <input type="hidden" name="notes" value="" />
+                                    <button type="submit" class="btn-artisan-primary btn-sm-artisan" style="width:100%;">Approve</button>
+                                </form>
+                                <form method="post" asp-page-handler="Reject" asp-route-serviceProviderProfileId="@serviceProvider.Id">
+                                    <input type="hidden" name="notes" value="" />
+                                    <button type="submit" class="btn-artisan-danger btn-sm-artisan" style="width:100%;">Reject</button>
+                                </form>
+                            }
+                            <form method="post" asp-page-handler="ToggleVerified" asp-route-serviceProviderProfileId="@serviceProvider.Id" asp-route-isVerified="@serviceProvider.IsVerified">
+                                <button type="submit" class="btn-artisan-outline btn-sm-artisan" style="width:100%;">@(serviceProvider.IsVerified ? "Revoke Verification" : "Verify")</button>
+                            </form>
+                            <a class="btn-artisan-outline btn-sm-artisan" style="width:100%;text-align:center;" asp-page="/ServiceProviders/Index" asp-route-history="@serviceProvider.Id">History</a>
+                            <a class="btn-artisan-outline btn-sm-artisan" style="width:100%;text-align:center;" asp-page="/ServiceProviders/Index" asp-route-cvreview="@serviceProvider.Id">Review CV</a>
+                        </div>
+                    </td>
+                </tr>
+                @if (Model.ExpandedProviderId == serviceProvider.Id)
+                {
+                    <tr>
+                        <td colspan="6" style="background-color:var(--color-sand);">
+                            <strong style="font-size:0.9rem;">Approval history for @serviceProvider.FullName</strong>
+                            @if (Model.ExpandedHistory.Count == 0)
+                            {
+                                <div class="empty-state" style="margin:0.5rem 0 0 0;">
+                                    <div class="empty-icon">🕘</div>
+                                    <div class="empty-body">
+                                        <div class="empty-title">No history yet</div>
+                                        <div class="empty-desc">This provider has no approval history recorded.</div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <ul class="flat-list">
+                                    @foreach (var entry in Model.ExpandedHistory)
+                                    {
+                                        <li class="flat-list-item">
+                                            <strong>@entry.ToStatus</strong> by @entry.ChangedByName on @entry.ChangedOn.ToString("MMM d, yyyy h:mm tt")
+                                            @if (!string.IsNullOrEmpty(entry.Notes))
+                                            {
+                                                <div class="text-note">@entry.Notes</div>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (Model.ExpandedProviderId == serviceProvider.Id && Model.ExpandedProviderCV is not null)
+                {
+                    <tr>
+                        <td colspan="6" style="background-color:var(--color-background);">
+                            <div style="padding: 1rem;">
+                                <strong style="font-size:0.9rem;">CV / RESUME</strong>
+                                <div style="margin-top: 1rem; padding: 1rem; background: white; border-left: 4px solid var(--color-primary); border-radius: 0.25rem;">
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                                        <div>
+                                            <p style="margin: 0; font-size: 0.875rem; color: var(--color-secondary-text);">Filename</p>
+                                            <p style="margin: 0.25rem 0 0 0; font-weight: 500;">@Model.ExpandedProviderCV.OriginalFileName</p>
+                                        </div>
+                                        <div>
+                                            <p style="margin: 0; font-size: 0.875rem; color: var(--color-secondary-text);">Uploaded</p>
+                                            <p style="margin: 0.25rem 0 0 0; font-weight: 500;">@Model.ExpandedProviderCV.UploadedAt.ToString("dd MMMM yyyy")</p>
+                                        </div>
+                                        <div>
+                                            <p style="margin: 0; font-size: 0.875rem; color: var(--color-secondary-text);">File Type</p>
+                                            <p style="margin: 0.25rem 0 0 0; font-weight: 500;">@Model.ExpandedProviderCV.ContentType</p>
+                                        </div>
+                                        <div>
+                                            <p style="margin: 0; font-size: 0.875rem; color: var(--color-secondary-text);">File Size</p>
+                                            <p style="margin: 0.25rem 0 0 0; font-weight: 500;">@FormatFileSize(Model.ExpandedProviderCV.FileSize)</p>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <form method="post" asp-page-handler="DownloadCV" asp-route-serviceProviderProfileId="@Model.ExpandedProviderCV.ServiceProviderProfileId" class="d-inline">
+                                            <button type="submit" class="btn-artisan-primary btn-sm-artisan">Download CV</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (Model.ExpandedProviderId == serviceProvider.Id && Model.ExpandedProviderCV is null)
+                {
+                    <tr>
+                        <td colspan="6" style="background-color:var(--color-background);">
+                            <div style="padding: 1rem;">
+                                <strong style="font-size:0.9rem;">CV / RESUME</strong>
+                                <div style="margin-top: 1rem; padding: 1rem; background: white; border-left: 4px solid var(--color-danger); border-radius: 0.25rem; color: var(--color-secondary-text);">
+                                    <p style="margin: 0;">CV not provided</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+@functions {
+    private static string FormatFileSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F1} KB";
+        return $"{bytes / (1024.0 * 1024.0):F1} MB";
+    }
+}

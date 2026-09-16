@@ -1,0 +1,294 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Identity.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Create an Account";
+}
+
+<div class="auth-split-wrapper">
+    <div class="auth-split-container" style="max-width: 1100px;"> <!-- Register form is wider, give it slightly more breathing room -->
+        <!-- Left Side: Switch to Login -->
+        <div class="auth-split-info">
+            <div class="auth-info-logo">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3L4 7.5V14.5C4 19.2 7.4 23.5 12 24.5C16.6 23.5 20 19.2 20 14.5V7.5L12 3Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M8.5 13.5L11 16L15.5 10" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span>UFAD Garowe</span>
+            </div>
+            <div class="auth-info-content">
+                <h2>Welcome Back!</h2>
+                <p>To keep connected with us please login with your personal info.</p>
+                <a asp-page="./Login" class="auth-btn-outline-white text-center">SIGN IN</a>
+            </div>
+        </div>
+
+        <!-- Right Side: Actual Register Form -->
+        <div class="auth-split-form" style="flex: 1.5; padding: 3rem;">
+            <h1 class="auth-form-title">Create Account</h1>
+
+            <!-- Social Login Icons -->
+            <div class="auth-social-container" style="margin-bottom: 1rem;">
+                <a href="#" class="auth-social-btn" title="Facebook">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 8H7v3h2v9h3v-9h3.6l.4-3H12V6c0-.9.2-1.2 1-1.2H15V2h-2.5C10.5 2 9 3.5 9 5.8V8z"/>
+                    </svg>
+                </a>
+                <a href="#" class="auth-social-btn" title="Google">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12.2 10.2v3h6.8c-.3 1.6-1.9 4.7-6.8 4.7-4.2 0-7.7-3.5-7.7-7.9s3.5-7.9 7.7-7.9c2.4 0 4 .9 4.9 1.8l2.4-2.4C17.9 2 15.3 1 12.2 1 5.9 1 12.2S5.9 23.4 12.2 23.4c6.5 0 10.8-4.6 10.8-11 0-.7-.1-1.3-.2-1.9H12.2z"/>
+                    </svg>
+                </a>
+                <a href="#" class="auth-social-btn" title="LinkedIn">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.8v8.37h2.8v-4.67c0-.25.02-.5.1-.68a1.14 1.14 0 0 1 1-.77c.76 0 1 .58 1 1.42v4.7h2.8M6.5 8.37a1.37 1.37 0 1 0 0-2.75 1.37 1.37 0 0 0 0 2.75M8 18.5V10.1H5v8.4h3z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <p class="auth-form-subtitle">or use your email for registration:</p>
+
+            <form method="post" class="artisan-form" id="registerForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger-artisan mb-3" role="alert"></div>
+
+                <!-- Account Type selection -->
+                <div class="auth-input-group">
+                    <label>I am joining as a...</label>
+                    <div class="d-flex gap-3 mb-2">
+                        <label class="d-flex align-items-center gap-2 label-strong">
+                            <input type="radio" asp-for="Input.AccountType" value="Client" checked class="account-type-radio" /> Client looking to hire
+                        </label>
+                        <label class="d-flex align-items-center gap-2 label-strong">
+                            <input type="radio" asp-for="Input.AccountType" value="ServiceProvider" class="account-type-radio" /> Service Provider (Electrician, Tailor, Developer...)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Names Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="auth-input-group">
+                            <label asp-for="Input.FirstName">First name</label>
+                            <div class="auth-input-wrapper">
+                                <span class="auth-input-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </span>
+                                <input asp-for="Input.FirstName" class="auth-field" placeholder="Ahmed" />
+                            </div>
+                            <span asp-validation-for="Input.FirstName" class="text-danger-artisan"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="auth-input-group">
+                            <label asp-for="Input.LastName">Last name</label>
+                            <div class="auth-input-wrapper">
+                                <span class="auth-input-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </span>
+                                <input asp-for="Input.LastName" class="auth-field" placeholder="Abdi" />
+                            </div>
+                            <span asp-validation-for="Input.LastName" class="text-danger-artisan"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email field -->
+                <div class="auth-input-group">
+                    <label asp-for="Input.Email">Email</label>
+                    <div class="auth-input-wrapper">
+                        <span class="auth-input-icon">
+                            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </span>
+                        <input asp-for="Input.Email" class="auth-field" placeholder="email@example.com" autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Input.Email" class="text-danger-artisan"></span>
+                </div>
+
+                <!-- Passwords Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="auth-input-group">
+                            <label asp-for="Input.Password">Password</label>
+                            <div class="auth-input-wrapper">
+                                <span class="auth-input-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </span>
+                                <input asp-for="Input.Password" class="auth-field" placeholder="••••••••" autocomplete="new-password" />
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger-artisan"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="auth-input-group">
+                            <label asp-for="Input.ConfirmPassword">Confirm password</label>
+                            <div class="auth-input-wrapper">
+                                <span class="auth-input-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </span>
+                                <input asp-for="Input.ConfirmPassword" class="auth-field" placeholder="••••••••" autocomplete="new-password" />
+                            </div>
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger-artisan"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone and Neighborhood Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="auth-input-group">
+                            <label asp-for="Input.PhoneNumber">Phone number</label>
+                            <div class="auth-input-wrapper">
+                                <span class="auth-input-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.5 19.5 0 0 1 6-6 19.79 19.79 0 0 1 8.63 3.07A2 2 0 0 1 22 16.92zM8 2.1a14 14 0 0 0-4.8 3.5"></path>
+                                    </svg>
+                                </span>
+                                <input asp-for="Input.PhoneNumber" class="auth-field" placeholder="+252 90..." />
+                            </div>
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger-artisan"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="auth-input-group">
+                            <label asp-for="Input.Neighborhood">Neighborhood</label>
+                            <div class="auth-input-wrapper">
+                                <span class="auth-input-icon">
+                                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                </span>
+                                <select asp-for="Input.Neighborhood" class="auth-field auth-select">
+                                    @foreach (var neighborhood in UnifiedFreelanceArtisansDirectory.Areas.Identity.Pages.Account.RegisterModel.Neighborhoods)
+                                    {
+                                        <option value="@neighborhood">@neighborhood</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Provider conditional fields -->
+                <div id="serviceProviderFields" class="conditional-panel">
+                    <span class="section-label mb-3">Service Provider Details</span>
+
+                    <div class="auth-input-group">
+                        <label asp-for="Input.CategoryId">Service category</label>
+                        <div class="auth-input-wrapper">
+                            <span class="auth-input-icon">
+                                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                                </svg>
+                            </span>
+                            <select asp-for="Input.CategoryId" class="auth-field auth-select">
+                                <option value="">Choose a category</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <span asp-validation-for="Input.CategoryId" class="text-danger-artisan"></span>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label asp-for="Input.Headline">Professional headline</label>
+                        <div class="auth-input-wrapper">
+                            <span class="auth-input-icon">
+                                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                            </span>
+                            <input asp-for="Input.Headline" class="auth-field" placeholder="e.g. Custom cabinetry and furniture repair" />
+                        </div>
+                        <span asp-validation-for="Input.Headline" class="text-danger-artisan"></span>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label asp-for="Input.Bio">Short bio</label>
+                        <div class="auth-input-wrapper">
+                            <span class="auth-input-icon" style="top: 1.5rem;">
+                                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14,2 14,8 20,8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </span>
+                            <textarea asp-for="Input.Bio" class="auth-field auth-textarea" rows="3" placeholder="Tell clients about your skills, specialties, and experience..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="auth-input-group">
+                                <label asp-for="Input.YearsOfExperience">Years of experience</label>
+                                <div class="auth-input-wrapper">
+                                    <span class="auth-input-icon">
+                                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12,6 12,12 14,14"></polyline>
+                                        </svg>
+                                    </span>
+                                    <input asp-for="Input.YearsOfExperience" type="number" min="0" max="60" class="auth-field" placeholder="e.g. 5" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="auth-input-group">
+                                <label asp-for="Input.HourlyRate">Hourly rate (USD, optional)</label>
+                                <div class="auth-input-wrapper">
+                                    <span class="auth-input-icon">
+                                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                        </svg>
+                                    </span>
+                                    <input asp-for="Input.HourlyRate" type="number" min="0" step="0.5" class="auth-field" placeholder="e.g. 25" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn-submit">SIGN UP</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var radios = document.querySelectorAll('.account-type-radio');
+            var serviceProviderFields = document.getElementById('serviceProviderFields');
+
+            function toggle() {
+                var selected = document.querySelector('.account-type-radio:checked');
+                serviceProviderFields.classList.toggle('is-visible', selected && selected.value === 'ServiceProvider');
+            }
+
+            radios.forEach(function (radio) { radio.addEventListener('change', toggle); });
+            toggle();
+        })();
+    </script>
+}

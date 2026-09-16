@@ -1,0 +1,56 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.ServiceProvider.Pages.Reviews.IndexModel
+@{
+    ViewData["Title"] = "Service Provider Reviews";
+}
+
+<div style="max-width:760px;">
+    <p class="text-muted">Reviews clients have left after working with you.</p>
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+    }
+
+    @if (Model.ProfileReviews.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">⭐</div>
+            <div class="empty-body">
+                <div class="empty-title">No reviews yet</div>
+                <div class="empty-desc">You haven't received any reviews — encourage clients to leave feedback after completing jobs.</div>
+                <div class="empty-actions">
+                    <a class="btn-artisan-outline btn-sm-artisan" asp-page="/Requests/Index">View Requests</a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var review in Model.ProfileReviews)
+        {
+            <div class="artisan-card card-flat mb-3">
+                <div class="d-flex justify-content-between">
+                    <strong>@review.ClientName</strong>
+                    <span class="star-rating">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
+                </div>
+                <p style="margin:0.35rem 0;">@review.Comment</p>
+                <span style="font-size:0.8rem;color:var(--color-text-secondary);">@review.CreatedOn.ToString("MMMM d, yyyy")</span>
+
+                @if (!string.IsNullOrEmpty(review.ServiceProviderReply))
+                {
+                    <div style="margin-top:0.6rem;margin-left:1rem;padding-left:0.75rem;border-left:3px solid var(--color-olive-soft);">
+                        <strong style="font-size:0.9rem;">Your reply</strong>
+                        <p style="margin:0.25rem 0 0;">@review.ServiceProviderReply</p>
+                    </div>
+                }
+                else
+                {
+                    <form method="post" asp-page-handler="Reply" asp-route-reviewId="@review.Id" class="artisan-form mt-2" style="border-top:1px solid var(--color-border);padding-top:0.75rem;">
+                        <textarea class="form-control" name="reply" rows="2" placeholder="Write a reply visible on your public profile..." required></textarea>
+                        <button type="submit" class="btn-artisan-outline btn-sm-artisan">Post Reply</button>
+                    </form>
+                }
+            </div>
+        }
+    }
+</div>

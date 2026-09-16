@@ -1,0 +1,61 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Client.Pages.Reviews.IndexModel
+@{
+    ViewData["Title"] = "My Reviews";
+}
+
+<div style="max-width:760px;">
+    <p class="text-muted">Reviews you've left for service providers you've worked with.</p>
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+    }
+
+    @if (Model.MyReviews.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">✍️</div>
+            <div class="empty-body">
+                <div class="empty-title">No reviews yet</div>
+                <div class="empty-desc">You haven't written any reviews yet. After working with a provider, leave feedback to help others.</div>
+                <div class="empty-actions">
+                    <a class="btn-artisan-primary" asp-page="/Requests/Index">View your requests</a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var review in Model.MyReviews)
+        {
+            <div class="artisan-card card-flat mb-3">
+                <div class="d-flex justify-content-between">
+                    <strong>Review for @review.ClientName</strong>
+                    <span class="star-rating">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
+                </div>
+                <p style="margin:0.35rem 0;">@review.Comment</p>
+                <span style="font-size:0.8rem;color:var(--color-text-secondary);">@review.CreatedOn.ToString("MMMM d, yyyy")</span>
+
+                <div class="d-flex gap-2 mt-2">
+                    <button type="button" class="btn-artisan-outline btn-sm-artisan" onclick="document.getElementById('edit-@review.Id').classList.toggle('d-none')">Edit</button>
+                    <form method="post" asp-page-handler="Delete" asp-route-reviewId="@review.Id" data-confirm="Delete this review?">
+                        <button type="submit" class="btn-artisan-danger btn-sm-artisan">Delete</button>
+                    </form>
+                </div>
+
+                <form method="post" asp-page-handler="Update" asp-route-reviewId="@review.Id" id="edit-@review.Id" class="d-none artisan-form mt-2" style="border-top:1px solid var(--color-border);padding-top:0.75rem;">
+                    <label>Rating</label>
+                    <select class="form-control" name="rating">
+                        @for (var i = 5; i >= 1; i--)
+                        {
+                            <option value="@i" selected="@(i == review.Rating)">@i star@(i == 1 ? "" : "s")</option>
+                        }
+                    </select>
+                    <label>Comment</label>
+                    <textarea class="form-control" name="comment" rows="3">@review.Comment</textarea>
+                    <button type="submit" class="btn-artisan-primary btn-sm-artisan">Save Changes</button>
+                </form>
+            </div>
+        }
+    }
+</div>

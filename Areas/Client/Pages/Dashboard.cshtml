@@ -1,0 +1,110 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Client.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<p class="text-muted">Welcome back, @User.Identity!.Name.</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-4 col-md-6">
+        <div class="stat-card accent-amber">
+            <div class="stat-card-icon"><partial name="_Icon" model="@("saved")" /></div>
+            <div>
+                <div class="stat-card-label">Saved Service Providers</div>
+                <div class="stat-card-value">@Model.Favorites.Count</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="stat-card accent-purple">
+            <div class="stat-card-icon"><partial name="_Icon" model="@("requests")" /></div>
+            <div>
+                <div class="stat-card-label">Pending Requests</div>
+                <div class="stat-card-value">@Model.PendingRequestCount</div>
+                <div class="stat-card-meta"><a asp-page="/Requests/Index">View requests &rarr;</a></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="stat-card accent-emerald">
+            <div class="stat-card-icon"><partial name="_Icon" model="@("reviews")" /></div>
+            <div>
+                <div class="stat-card-label">Reviews Written</div>
+                <div class="stat-card-value">@Model.ReviewCount</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex gap-3 flex-wrap mb-4 fade-in">
+    <a class="btn-artisan-primary" asp-area="" asp-page="/Browse">Find Service Providers</a>
+    <a class="btn-artisan-outline" asp-page="/Favorites">Saved Service Providers</a>
+    <a class="btn-artisan-outline" asp-page="/Reviews/Index">My Reviews</a>
+    <a class="btn-artisan-outline" asp-page="/Requests/Index">My Service Requests</a>
+</div>
+
+@if (Model.Favorites.Count > 0)
+{
+    <h3 class="card-title">Recently saved</h3>
+    <div class="row g-3 mb-4">
+        @foreach (var serviceProvider in Model.Favorites.Take(4))
+        {
+            <div class="col-md-6">
+                <div class="serviceProvider-card fade-in">
+                    @if (!string.IsNullOrEmpty(serviceProvider.ProfileImagePath))
+                    {
+                        <img src="@serviceProvider.ProfileImagePath" alt="@serviceProvider.FullName" class="sp-avatar-img" style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0;" />
+                    }
+                    else
+                    {
+                        <div class="avatar-block">@serviceProvider.FullName.Substring(0, 1)</div>
+                    }
+                    <div>
+                        <a asp-area="" asp-page="/ServiceProviderDetails" asp-route-id="@serviceProvider.Id" class="provider-name">@serviceProvider.FullName</a>
+                        <p class="headline">@serviceProvider.Headline</p>
+                        <span class="badge-sm badge-rating">★ @serviceProvider.AverageRating.ToString("0.0")</span>
+                    </div>
+                </div>
+                </div>
+            
+        }
+    </div>
+}
+
+@if (Model.RecommendedProviders.Count > 0)
+{
+    <div class="d-flex justify-content-between align-items-center">
+        <h3 style="font-size:1.15rem;">Recommended for you</h3>
+        <a asp-area="" asp-page="/Browse">See all &rarr;</a>
+    </div>
+    <div class="row g-3">
+        @foreach (var serviceProvider in Model.RecommendedProviders)
+        {
+            <div class="col-md-6">
+                <div class="serviceProvider-card">
+                    @if (!string.IsNullOrEmpty(serviceProvider.ProfileImagePath))
+                    {
+                        <img src="@serviceProvider.ProfileImagePath" alt="@serviceProvider.FullName" class="sp-avatar-img" style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0;" />
+                    }
+                    else
+                    {
+                        <div class="avatar-block">@serviceProvider.FullName.Substring(0, 1)</div>
+                    }
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <a asp-area="" asp-page="/ServiceProviderDetails" asp-route-id="@serviceProvider.Id" style="color:var(--color-navy);font-weight:700;">@serviceProvider.FullName</a>
+                            @if (serviceProvider.IsVerified)
+                            {
+                                <span class="badge-artisan badge-verified">Verified</span>
+                            }
+                        </div>
+                        <p class="headline">@serviceProvider.Headline</p>
+                        <span class="badge-artisan badge-rating">★ @serviceProvider.AverageRating.ToString("0.0") (@serviceProvider.ReviewCount)</span>
+                        <span class="badge-artisan badge-neutral">@serviceProvider.CategoryName</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

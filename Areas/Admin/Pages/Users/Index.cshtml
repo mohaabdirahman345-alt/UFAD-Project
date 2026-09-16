@@ -1,0 +1,47 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Admin.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+    <p class="text-muted">Every account on the platform, with the ability to deactivate one if needed.</p>
+    <table class="table-artisan">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>@user.FullName</td>
+                    <td>@user.Email</td>
+                    <td><span class="badge-artisan badge-neutral">@user.Role</span></td>
+                    <td>
+                        @if (user.IsActive)
+                        {
+                            <span class="badge-artisan badge-verified">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge-artisan badge-pending">Deactivated</span>
+                        }
+                    </td>
+                    <td>
+                        @if (user.Role != "Administrator")
+                        {
+                            <form method="post" asp-page-handler="ToggleActive" asp-route-userId="@user.Id" asp-route-isActive="@user.IsActive"
+                                  data-confirm="@(user.IsActive ? "Deactivate this account?" : "Reactivate this account?")">
+                                <button type="submit" class="btn-artisan-outline btn-sm-artisan">@(user.IsActive ? "Deactivate" : "Activate")</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>

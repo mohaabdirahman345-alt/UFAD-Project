@@ -1,0 +1,341 @@
+@page "{id:int}"
+@model UnifiedFreelanceArtisansDirectory.Pages.ServiceProviderDetailsModel
+@{
+    ViewData["Title"] = Model.ServiceProvider.FullName;
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="container" style="padding-top:1.5rem;">
+        <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+    </div>
+}
+
+@if (Model.IsOwnProfile && Model.ServiceProvider.ApprovalStatus != UnifiedFreelanceArtisansDirectory.Domain.Enums.ApprovalStatus.Approved)
+{
+    <div class="container" style="padding-top:1.5rem;">
+        <div class="alert-artisan">This is a preview — your profile isn't public yet. Only you and administrators can see this page until it's approved.</div>
+    </div>
+}
+
+<section style="background: linear-gradient(135deg, #1e293b 0%, #1e3a8a 50%, #0f172a 100%); position: relative; overflow: hidden; padding: 3.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <div style="position: absolute; width: 400px; height: 400px; background: rgba(37, 99, 235, 0.15); border-radius: 50%; top: -150px; right: -100px; filter: blur(80px); z-index: 0;"></div>
+    <div class="container" style="position: relative; z-index: 1;">
+        <div class="d-flex flex-wrap align-items-start gap-4">
+            <div class="d-flex flex-column align-items-start gap-3">
+                @if (!string.IsNullOrEmpty(Model.ServiceProvider.ProfileImagePath))
+                {
+                    <img src="@Model.ServiceProvider.ProfileImagePath" alt="@Model.ServiceProvider.FullName" class="sp-avatar-img" style="width: 140px; height: 140px; border-radius: 16px; object-fit: cover; border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 20px 25px rgba(0,0,0,0.3); flex-shrink: 0;" />
+                }
+                else
+                {
+                    <div class="avatar-block" style="width: 140px; height: 140px; font-size: 3.5rem; border-radius: 16px; box-shadow: 0 20px 25px rgba(0,0,0,0.3);">@Model.ServiceProvider.FullName.Substring(0, 1)</div>
+                }
+            </div>
+            <div class="flex-grow-1" style="color: white; padding-top: 0.5rem;">
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                    <h1 class="mb-0" style="font-size: 2.2rem; color: white; margin-bottom: 0.25rem;">@Model.ServiceProvider.FullName</h1>
+                    @if (Model.ServiceProvider.IsVerified)
+                    {
+                        <span style="background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid rgba(34, 197, 94, 0.4); display: inline-flex; align-items: center; gap: 0.35rem;">✓ Verified</span>
+                    }
+                </div>
+                <p class="headline" style="font-size: 1.2rem; color: rgba(255,255,255,0.9); margin-bottom: 0.5rem; margin-top: 0;">@Model.ServiceProvider.Headline</p>
+                
+                <div class="d-flex gap-3 flex-wrap align-items-center mb-3">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(245, 158, 11, 0.15); border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                        <span style="font-size: 1.1rem; color: #fbbf24;">★</span>
+                        <span style="color: rgba(255,255,255,0.95); font-weight: 600;">@Model.ServiceProvider.AverageRating.ToString("0.0")</span>
+                        <span style="color: rgba(255,255,255,0.75); font-size: 0.9rem;">(@Model.ServiceProvider.ReviewCount reviews)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(59, 130, 246, 0.15); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <span style="color: rgba(255,255,255,0.95); font-weight: 500;">@Model.ServiceProvider.CategoryName</span>
+                    </div>
+                    @switch (Model.ServiceProvider.AvailabilityStatus)
+                    {
+                        case UnifiedFreelanceArtisansDirectory.Domain.Enums.AvailabilityStatus.Available:
+                            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(34, 197, 94, 0.15); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                                <span style="width: 8px; height: 8px; background: #86efac; border-radius: 50%; display: inline-block;"></span>
+                                <span style="color: #86efac; font-weight: 600; font-size: 0.9rem;">Available Now</span>
+                            </div>
+                            break;
+                        case UnifiedFreelanceArtisansDirectory.Domain.Enums.AvailabilityStatus.Busy:
+                            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(239, 68, 68, 0.15); border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                <span style="width: 8px; height: 8px; background: #fca5a5; border-radius: 50%; display: inline-block;"></span>
+                                <span style="color: #fca5a5; font-weight: 600; font-size: 0.9rem;">Busy</span>
+                            </div>
+                            break;
+                        case UnifiedFreelanceArtisansDirectory.Domain.Enums.AvailabilityStatus.Unavailable:
+                            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(107, 114, 128, 0.15); border-radius: 12px; border: 1px solid rgba(107, 114, 128, 0.3);">
+                                <span style="color: rgba(255,255,255,0.75); font-weight: 600; font-size: 0.9rem;">Unavailable</span>
+                            </div>
+                            break;
+                    }
+                </div>
+
+                <p style="color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-bottom: 0;"><strong>@Model.ServiceProvider.YearsOfExperience</strong> years of experience @if (Model.ServiceProvider.HourlyRate.HasValue) { <text>· from <strong>$@Model.ServiceProvider.HourlyRate/hr</strong></text> }</p>
+            </div>
+            @if (User.IsInRole("Client"))
+            {
+                <div class="d-flex flex-column gap-2" style="min-width: 200px;">
+                    <form method="post" asp-page-handler="ToggleFavorite" asp-route-id="@Model.ServiceProvider.Id" style="width: 100%;">
+                        <button type="submit" class="@(Model.IsFavorited ? "btn-artisan-secondary" : "btn-artisan-outline")" style="width: 100%; background: @(Model.IsFavorited ? "rgba(245, 158, 11, 0.9)" : "rgba(255,255,255,0.1)"); color: @(Model.IsFavorited ? "white" : "rgba(255,255,255,0.95)"); border-color: @(Model.IsFavorited ? "transparent" : "rgba(255,255,255,0.3)"); font-weight: 600;">
+                            @(Model.IsFavorited ? "★ Saved" : "☆ Save")
+                        </button>
+                    </form>
+                    <button type="button" class="btn-artisan-primary" data-bs-toggle="modal" data-bs-target="#requestModal" style="background: white; color: #1e293b; font-weight: 600; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">Message</button>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<div style="background-color: #f8fafc; padding: 3rem 0;">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.3rem; color: #1e293b; margin-bottom: 1rem; font-weight: 700;">About</h2>
+                    <p style="color: #475569; line-height: 1.8; margin-bottom: 1rem;">@Model.ServiceProvider.Bio</p>
+                    <p style="color: #64748b; margin-bottom: 0; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <span style="color: #2563eb; font-weight: 700;">@Model.ServiceProvider.YearsOfExperience</span>
+                            <span>years of experience</span>
+                        </span>
+                        @if (Model.ServiceProvider.HourlyRate.HasValue)
+                        {
+                            <span style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                                <span>·</span>
+                                <span>from <strong style="color: #1e293b;">$@Model.ServiceProvider.HourlyRate/hr</strong></span>
+                            </span>
+                        }
+                    </p>
+                    @if (Model.ServiceProvider.Skills.Count > 0)
+                    {
+                        <div style="margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.6rem;">
+                            @foreach (var skill in Model.ServiceProvider.Skills)
+                            {
+                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; border: 1px solid #c7d2fe;">@skill</span>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.3rem; color: #1e293b; margin-bottom: 1rem; font-weight: 700;">Portfolio</h2>
+                    @if (Model.ServiceProvider.PortfolioItems.Count == 0)
+                    {
+                        <div style="border: 2px dashed #e2e8f0; border-radius: 12px; padding: 2rem; text-align: center; background: #f8fafc;">
+                            <div style="font-size: 2rem; margin-bottom: 0.75rem;">📁</div>
+                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;">No portfolio items yet</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">This provider hasn't added any portfolio items. Check back later or message them.</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            @foreach (var item in Model.ServiceProvider.PortfolioItems)
+                            {
+                                <div class="col-md-6">
+                                    <div style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: white; transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer;" onmouseover="this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'; this.style.transform='translateY(0)';">
+                                        <img src="@item.ImagePath" alt="@item.Title" style="width: 100%; height: 180px; object-fit: cover;" />
+                                        <div style="padding: 1rem;">
+                                            <strong style="color: #1e293b; display: block; margin-bottom: 0.35rem;">@item.Title</strong>
+                                            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 0;">@item.Description</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.3rem; color: #1e293b; margin-bottom: 0; font-weight: 700;">Reviews <span style="color: #64748b; font-weight: 400; font-size: 1rem;">(@Model.ServiceProvider.ReviewCount)</span></h2>
+                        @if (Model.CanReview)
+                        {
+                            <a class="btn-artisan-primary" href="#review-form" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Write Review</a>
+                        }
+                    </div>
+
+                    @if (Model.ServiceProvider.Reviews.Count == 0)
+                    {
+                        <div style="border: 2px dashed #e2e8f0; border-radius: 12px; padding: 2rem; text-align: center; background: #f8fafc;">
+                            <div style="font-size: 2rem; margin-bottom: 0.75rem;">💬</div>
+                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;">No reviews yet</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">Be the first to leave a review for this provider.</div>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var review in Model.ServiceProvider.Reviews)
+                        {
+                            <div style="border-top: 1px solid #e2e8f0; padding: 1.25rem 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <strong style="color: #1e293b;">@review.ClientName</strong>
+                                    <span style="color: #f59e0b; font-weight: 700; letter-spacing: 1px;">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
+                                </div>
+                                <p style="color: #475569; margin: 0.5rem 0; line-height: 1.6;">@review.Comment</p>
+                                <span style="font-size: 0.8rem; color: #94a3b8;">@review.CreatedOn.ToString("MMMM yyyy")</span>
+                                @if (!string.IsNullOrEmpty(review.ServiceProviderReply))
+                                {
+                                    <div style="margin-top: 0.75rem; margin-left: 1rem; padding-left: 1rem; border-left: 3px solid #3b82f6;">
+                                        <strong style="font-size: 0.9rem; color: #1e293b;">Reply from @Model.ServiceProvider.FullName</strong>
+                                        <p style="margin: 0.35rem 0 0; color: #475569;">@review.ServiceProviderReply</p>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 1.5rem; position: sticky; top: 100px;">
+                    <h3 style="font-size: 1.1rem; color: #1e293b; font-weight: 700; margin-bottom: 1.25rem;">Contact Information</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 600; margin-bottom: 0.35rem;">Phone</div>
+                            <a href="tel:@Model.ServiceProvider.PhoneNumber" style="color: #2563eb; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="font-size: 1.1rem;">📞</span>@Model.ServiceProvider.PhoneNumber
+                            </a>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 600; margin-bottom: 0.35rem;">Email</div>
+                            <a href="mailto:@Model.ServiceProvider.Email" style="color: #2563eb; font-weight: 600; text-decoration: none; word-break: break-all; display: flex; align-items: flex-start; gap: 0.5rem;">
+                                <span style="font-size: 1rem; flex-shrink: 0;">✉️</span>@Model.ServiceProvider.Email
+                            </a>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 600; margin-bottom: 0.35rem;">Location</div>
+                            <div style="color: #1e293b; font-weight: 500;">@Model.ServiceProvider.Address</div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.IsOwnProfile)
+                {
+                    <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.1rem; color: #1e293b; font-weight: 700; margin-bottom: 1.25rem;">Profile Stats</h3>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8fafc; border-radius: 8px;">
+                                <span style="color: #64748b; font-size: 0.9rem;">Profile Views</span>
+                                <span style="color: #2563eb; font-weight: 700; font-size: 1.1rem;">@Model.ServiceProvider.ProfileViews</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8fafc; border-radius: 8px;">
+                                <span style="color: #64748b; font-size: 0.9rem;">Profile Complete</span>
+                                <span style="color: #2563eb; font-weight: 700; font-size: 1.1rem;">@Model.ServiceProvider.ProfileCompletionPercentage%</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <button type="button" class="btn-artisan-outline" data-bs-toggle="modal" data-bs-target="#reportModal" style="width: 100%; background: #fef2f2; color: #dc2626; border-color: #fecaca; font-weight: 600; padding: 0.75rem 1rem; border-radius: 12px;">Report Profile</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.CanReview)
+{
+    <div style="background-color: #f8fafc; padding: 2rem 0;">
+        <div class="container">
+            <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;" id="review-form">
+                <h2 style="font-size: 1.3rem; color: #1e293b; margin-bottom: 1.5rem; font-weight: 700;">Leave a Review</h2>
+                <form method="post" asp-page-handler="SubmitReview" asp-route-id="@Model.ServiceProvider.Id">
+                    <div style="margin-bottom: 1.25rem;">
+                        <label asp-for="ReviewInput.Rating" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; font-size: 0.95rem;">Your Rating</label>
+                        <select class="form-control" asp-for="ReviewInput.Rating" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc; font-family: inherit; font-size: 0.95rem;">
+                            <option value="5">★★★★★ Excellent</option>
+                            <option value="4">★★★★☆ Good</option>
+                            <option value="3">★★★☆☆ Average</option>
+                            <option value="2">★★☆☆☆ Below Average</option>
+                            <option value="1">★☆☆☆☆ Poor</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label asp-for="ReviewInput.Comment" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; font-size: 0.95rem;">Your Review</label>
+                        <textarea class="form-control" rows="4" asp-for="ReviewInput.Comment" maxlength="1000" required style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc; font-family: inherit; resize: vertical;"></textarea>
+                        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.35rem;">Maximum 1000 characters</div>
+                    </div>
+                    <button type="submit" class="btn-artisan-primary" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; font-weight: 600; padding: 0.75rem 2rem; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">Post Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 20px 25px rgba(0,0,0,0.15);">
+            <form method="post" asp-page-handler="SubmitReport" asp-route-id="@Model.ServiceProvider.Id">
+                <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding: 1.5rem; background: #f8fafc;">
+                    <h5 class="modal-title" style="font-weight: 700; color: #1e293b;">Report this Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <div style="margin-bottom: 1.25rem;">
+                        <label asp-for="Report.Reason" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; font-size: 0.95rem;">Reason for Report</label>
+                        <select class="form-control" asp-for="Report.Reason" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc; font-family: inherit; font-size: 0.95rem;">
+                            <option value="0">Impersonation</option>
+                            <option value="1">Fraud</option>
+                            <option value="2">Harassment</option>
+                            <option value="3">Spam</option>
+                            <option value="4">Inappropriate content</option>
+                            <option value="5">Quality dispute</option>
+                            <option value="6">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label asp-for="Report.Details" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; font-size: 0.95rem;">Details</label>
+                        <textarea class="form-control" rows="4" asp-for="Report.Details" maxlength="1000" required style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc; font-family: inherit; resize: vertical;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1.5rem; background: #f8fafc;">
+                    <button type="button" class="btn-artisan-outline" data-bs-dismiss="modal" style="background: white; color: #1e293b; border-color: #e2e8f0; font-weight: 600;">Cancel</button>
+                    <button type="submit" class="btn-artisan-primary" style="background: #dc2626; color: white; font-weight: 600; padding: 0.65rem 1.5rem; border-radius: 8px; border: none; cursor: pointer;">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Client"))
+{
+    <div class="modal fade" id="requestModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 20px 25px rgba(0,0,0,0.15);">
+                <form method="post" asp-page-handler="SubmitRequest" asp-route-id="@Model.ServiceProvider.Id">
+                    <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding: 1.5rem; background: #f8fafc;">
+                        <h5 class="modal-title" style="font-weight: 700; color: #1e293b;">Message @Model.ServiceProvider.FullName</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="padding: 1.5rem;">
+                        <div style="margin-bottom: 1.25rem;">
+                            <label asp-for="RequestInput.Title" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; font-size: 0.95rem;">What do you need?</label>
+                            <input class="form-control" asp-for="RequestInput.Title" placeholder="e.g. Professional photo shoot for event" maxlength="150" required style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc; font-family: inherit; font-size: 0.95rem;" />
+                        </div>
+
+                        <div style="margin-bottom: 1.25rem;">
+                            <label asp-for="RequestInput.Description" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; font-size: 0.95rem;">Tell us more about your project</label>
+                            <textarea class="form-control" rows="4" asp-for="RequestInput.Description" maxlength="2000" required style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc; font-family: inherit; resize: vertical;"></textarea>
+                        </div>
+
+                        <div>
+                            <label asp-for="RequestInput.PreferredDate" style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; font-size: 0.95rem;">Preferred date (optional)</label>
+                            <input class="form-control" type="date" asp-for="RequestInput.PreferredDate" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc; font-family: inherit; font-size: 0.95rem;" />
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1.5rem; background: #f8fafc;">
+                        <button type="button" class="btn-artisan-outline" data-bs-dismiss="modal" style="background: white; color: #1e293b; border-color: #e2e8f0; font-weight: 600; padding: 0.65rem 1.5rem; border-radius: 8px;">Cancel</button>
+                        <button type="submit" class="btn-artisan-primary" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; font-weight: 600; padding: 0.65rem 1.5rem; border-radius: 8px; border: none; cursor: pointer;">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

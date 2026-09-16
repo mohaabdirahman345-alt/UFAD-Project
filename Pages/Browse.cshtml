@@ -1,0 +1,136 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Pages.BrowseModel
+@{
+    ViewData["Title"] = "Find Service Providers";
+}
+
+<div class="page-panel">
+    <span class="section-label">Directory</span>
+    <h1 class="mb-4 page-heading-large">Find Service Providers</h1>
+
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <form method="get" class="artisan-card artisan-form card-flat">
+                <label for="Keyword">Keyword</label>
+                <input class="form-control" type="text" id="Keyword" name="Keyword" value="@Model.Keyword" placeholder="e.g. cabinet, wiring" />
+
+                <label for="CategoryId">Service category</label>
+                <select class="form-control" id="CategoryId" name="CategoryId">
+                    <option value="">All categories</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">@category.Name</option>
+                    }
+                </select>
+
+                <label for="Address">Address</label>
+                <select class="form-control" id="Address" name="Address">
+                    <option value="">Any address</option>
+                    @foreach (var address in UnifiedFreelanceArtisansDirectory.Pages.BrowseModel.Addresses)
+                    {
+                        <option value="@address" selected="@(Model.Address == address)">@address</option>
+                    }
+                </select>
+
+                <label for="MinimumRating">Minimum rating</label>
+                <select class="form-control" id="MinimumRating" name="MinimumRating">
+                    <option value="">Any rating</option>
+                    <option value="4" selected="@(Model.MinimumRating == 4)">4 stars &amp; up</option>
+                    <option value="3" selected="@(Model.MinimumRating == 3)">3 stars &amp; up</option>
+                </select>
+
+                <label for="AvailabilityStatus">Availability</label>
+                <select class="form-control" id="AvailabilityStatus" name="AvailabilityStatus">
+                    <option value="">Any availability</option>
+                    <option value="0" selected="@(Model.AvailabilityStatus == UnifiedFreelanceArtisansDirectory.Domain.Enums.AvailabilityStatus.Available)">Available now</option>
+                    <option value="1" selected="@(Model.AvailabilityStatus == UnifiedFreelanceArtisansDirectory.Domain.Enums.AvailabilityStatus.Busy)">Busy</option>
+                </select>
+
+                <button type="submit" class="btn-artisan-primary btn-w-full">Apply Filters</button>
+            </form>
+        </div>
+
+        <div class="col-lg-9">
+            <p class="text-small-muted">@Model.Results.TotalCount service providers found</p>
+
+            @if (Model.Results.Items.Count == 0)
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">🔎</div>
+                    <div class="empty-body">
+                        <div class="empty-title">No providers found</div>
+                        <div class="empty-desc">No service providers match those filters. Try widening your search or remove filters.</div>
+                        <div class="empty-actions">
+                            <a class="btn-artisan-primary" href="/Browse">Reset filters</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var serviceProvider in Model.Results.Items)
+                    {
+                        <div class="col-12">
+                            <div class="serviceProvider-card">
+                                @if (!string.IsNullOrEmpty(serviceProvider.ProfileImagePath))
+                                {
+                                    <img src="@serviceProvider.ProfileImagePath" alt="@serviceProvider.FullName" class="sp-avatar-img" style="width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;" />
+                                }
+                                else
+                                {
+                                    <div class="avatar-block">@serviceProvider.FullName.Substring(0, 1)</div>
+                                }
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <a asp-page="/ServiceProviderDetails" asp-route-id="@serviceProvider.Id" class="text-strong-link">@serviceProvider.FullName</a>
+                                        @if (serviceProvider.IsVerified)
+                                        {
+                                            <span class="badge-artisan badge-verified">Verified</span>
+                                        }
+                                        <span class="badge-artisan badge-neutral">@serviceProvider.CategoryName</span>
+                                        @if (serviceProvider.AvailabilityStatus == UnifiedFreelanceArtisansDirectory.Domain.Enums.AvailabilityStatus.Available)
+                                        {
+                                            <span class="badge-artisan badge-verified">Available</span>
+                                        }
+                                    </div>
+                                    <p class="headline">@serviceProvider.Headline</p>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap text-small-muted">
+                                        <span class="badge-artisan badge-rating">★ @serviceProvider.AverageRating.ToString("0.0") (@serviceProvider.ReviewCount)</span>
+                                        <span>@serviceProvider.Address</span>
+                                        @if (serviceProvider.HourlyRate.HasValue)
+                                        {
+                                            <span>· $@serviceProvider.HourlyRate/hr</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Results.TotalPages > 1)
+                {
+                    <ul class="pagination-artisan">
+                        @for (var i = 1; i <= Model.Results.TotalPages; i++)
+                        {
+                            <li class="@(i == Model.Results.PageNumber ? "active" : "")">
+                                @if (i == Model.Results.PageNumber)
+                                {
+                                    <span>@i</span>
+                                }
+                                else
+                                {
+                                    <a asp-page="/Browse" asp-route-Keyword="@Model.Keyword" asp-route-CategoryId="@Model.CategoryId"
+                                       asp-route-Address="@Model.Address" asp-route-MinimumRating="@Model.MinimumRating"
+                                       asp-route-AvailabilityStatus="@Model.AvailabilityStatus"
+                                       asp-route-PageNumber="@i">@i</a>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+        </div>
+    </div>
+</div>

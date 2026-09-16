@@ -1,0 +1,42 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Admin.Pages.Reviews.IndexModel
+@{
+    ViewData["Title"] = "Reviews";
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+}
+
+<p style="color:var(--color-text-muted);max-width:640px;">Every review left across the platform, newest first. Remove anything that violates platform guidelines.</p>
+
+<table class="table-artisan" style="margin-top:1rem;">
+    <thead>
+        <tr>
+            <th>Client</th>
+            <th>Service Provider</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var review in Model.Reviews)
+        {
+            <tr>
+                <td>@review.ClientName</td>
+                <td>@review.ServiceProviderName</td>
+                <td class="star-rating">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</td>
+                <td style="max-width:280px;">@review.Comment</td>
+                <td>@review.CreatedOn.ToString("MMM d, yyyy")</td>
+                <td>
+                    <form method="post" asp-page-handler="Delete" asp-route-reviewId="@review.Id" data-confirm="Remove this review?">
+                        <button type="submit" class="btn-artisan-danger btn-sm-artisan">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

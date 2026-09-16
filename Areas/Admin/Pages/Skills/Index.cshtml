@@ -1,0 +1,56 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Admin.Pages.Skills.IndexModel
+@{
+    ViewData["Title"] = "Manage Skills";
+}
+
+    <p class="text-muted">Skills are grouped by category and selected by providers on their profile.</p>
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <form method="post" asp-page-handler="Create" class="artisan-card artisan-form">
+                <h3 style="font-size:1.05rem;">Add skill</h3>
+                <div asp-validation-summary="ModelOnly" class="text-danger-artisan mb-2"></div>
+                <label asp-for="NewSkillCategoryId">Category</label>
+                <select asp-for="NewSkillCategoryId" class="form-control">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+                <label asp-for="NewSkillName">Skill name</label>
+                <input asp-for="NewSkillName" class="form-control" />
+                <button type="submit" class="btn-artisan-primary">Add Skill</button>
+            </form>
+        </div>
+
+        <div class="col-lg-8">
+            <table class="table-artisan">
+                <thead>
+                    <tr>
+                        <th>Skill</th>
+                        <th>Category</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var skill in Model.Skills)
+                    {
+                        <tr>
+                            <td>@skill.Name</td>
+                            <td>@skill.Category.Name</td>
+                            <td>
+                                <form method="post" asp-page-handler="Delete" asp-route-skillId="@skill.Id" data-confirm="Remove this skill? ServiceProviders who claimed it will lose it.">
+                                    <button type="submit" class="btn-artisan-danger btn-sm-artisan">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>

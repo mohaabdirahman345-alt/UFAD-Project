@@ -1,0 +1,59 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.ServiceProvider.Pages.Settings.IndexModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <form method="post" enctype="multipart/form-data" asp-page-handler="UploadAvatar" class="artisan-card artisan-form">
+            <h3 style="font-size:1.1rem;">Profile Picture</h3>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                @if (!string.IsNullOrEmpty(Model.ProfileImagePath))
+                {
+                    <img src="@Model.ProfileImagePath" alt="Profile Picture" class="rounded-circle shadow-sm" style="width: 70px; height: 70px; object-fit: cover; border: 2.5px solid var(--color-primary);" />
+                }
+                else
+                {
+                    <div class="profile-avatar-btn" style="width: 70px; height: 70px; font-size: 1.8rem; border-radius: 50%; border: 2.5px solid var(--color-primary);">
+                        @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                    </div>
+                }
+                <div>
+                    <div class="fw-semibold" style="font-size: 0.95rem;">@Model.Email</div>
+                    <div class="text-muted extra-small">Upload a JPG, PNG, or WEBP photo to display on your dashboard</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AvatarFile" class="form-label small fw-semibold">Choose photo</label>
+                <input type="file" asp-for="AvatarFile" class="form-control form-control-sm" accept="image/*" required />
+                <span asp-validation-for="AvatarFile" class="text-danger-artisan"></span>
+            </div>
+
+            <button type="submit" class="btn-artisan-primary btn-sm-artisan">Upload Picture</button>
+        </form>
+    </div>
+    <div class="col-lg-6">
+        <form method="post" class="artisan-card artisan-form">
+            <h3 style="font-size:1.1rem;">Change password</h3>
+            <div asp-validation-summary="ModelOnly" class="text-danger-artisan mb-2"></div>
+
+            <label asp-for="Input.CurrentPassword">Current password</label>
+            <input asp-for="Input.CurrentPassword" class="form-control" />
+
+            <label asp-for="Input.NewPassword">New password</label>
+            <input asp-for="Input.NewPassword" class="form-control" />
+
+            <label asp-for="Input.ConfirmPassword">Confirm new password</label>
+            <input asp-for="Input.ConfirmPassword" class="form-control" />
+
+            <button type="submit" class="btn-artisan-primary">Update Password</button>
+        </form>
+    </div>
+</div>

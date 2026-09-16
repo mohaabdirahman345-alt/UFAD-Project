@@ -1,0 +1,50 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Client.Pages.FavoritesModel
+@{
+    ViewData["Title"] = "Saved Service Providers";
+}
+
+    <p class="text-muted">Service providers you've bookmarked for later.</p>
+    @if (Model.Favorites.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">🔖</div>
+            <div class="empty-body">
+                <div class="empty-title">No saved providers</div>
+                <div class="empty-desc">You haven't saved any service providers yet. Save providers to easily find them later.</div>
+                <div class="empty-actions">
+                    <a class="btn-artisan-primary" asp-area="" asp-page="/Browse">Browse providers</a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var serviceProvider in Model.Favorites)
+            {
+                <div class="col-md-6">
+                    <div class="serviceProvider-card">
+                        @if (!string.IsNullOrEmpty(serviceProvider.ProfileImagePath))
+                        {
+                            <img src="@serviceProvider.ProfileImagePath" alt="@serviceProvider.FullName" class="sp-avatar-img" style="width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;" />
+                        }
+                        else
+                        {
+                            <div class="avatar-block">@serviceProvider.FullName.Substring(0, 1)</div>
+                        }
+                        <div class="flex-grow-1">
+                            <a asp-area="" asp-page="/ServiceProviderDetails" asp-route-id="@serviceProvider.Id" style="color:var(--color-navy);font-weight:700;">@serviceProvider.FullName</a>
+                            <p class="headline">@serviceProvider.Headline</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge-artisan badge-rating">★ @serviceProvider.AverageRating.ToString("0.0")</span>
+                                <form method="post" asp-page-handler="Remove" asp-route-serviceProviderProfileId="@serviceProvider.Id">
+                                    <button type="submit" class="btn-artisan-outline btn-sm-artisan">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }

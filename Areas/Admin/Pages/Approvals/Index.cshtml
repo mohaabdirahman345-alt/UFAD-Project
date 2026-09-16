@@ -1,0 +1,51 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Admin.Pages.Approvals.IndexModel
+@{
+    ViewData["Title"] = "Profile Approvals";
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+}
+
+<p style="color:var(--color-text-muted);max-width:640px;">Profiles a service provider has submitted are queued here until an administrator approves or rejects them. Only approved profiles appear in client search.</p>
+
+@if (Model.PendingProviders.Count == 0)
+{
+    <div class="artisan-card card-flat" style="margin-top:1.5rem;">
+        <p style="margin:0;color:var(--color-text-muted);">Nothing waiting on review right now.</p>
+    </div>
+}
+else
+{
+    <div class="row g-3" style="margin-top:0.5rem;">
+        @foreach (var provider in Model.PendingProviders)
+        {
+            <div class="col-lg-6">
+                <div class="artisan-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong style="font-size:1.05rem;">@provider.FullName</strong>
+                            <p style="margin:0.2rem 0 0.6rem;color:var(--color-text-muted);">@provider.Headline</p>
+                            <span class="badge-artisan badge-neutral">@provider.CategoryName</span>
+                        </div>
+                        <span class="badge-artisan badge-pending">Pending Review</span>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <form method="post" asp-page-handler="Approve" asp-route-serviceProviderProfileId="@provider.Id">
+                            <input type="hidden" name="notes" value="" />
+                            <button type="submit" class="btn-artisan-success btn-sm-artisan">Approve</button>
+                        </form>
+                        <form method="post" asp-page-handler="Reject" asp-route-serviceProviderProfileId="@provider.Id">
+                            <input type="hidden" name="notes" value="" />
+                            <button type="submit" class="btn-artisan-danger btn-sm-artisan">Reject</button>
+                        </form>
+                        <a class="btn-artisan-outline btn-sm-artisan" asp-area="" asp-page="/ServiceProviderDetails" asp-route-id="@provider.Id">Preview Profile</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

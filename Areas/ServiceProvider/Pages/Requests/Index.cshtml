@@ -1,0 +1,115 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.ServiceProvider.Pages.Requests.IndexModel
+@using UnifiedFreelanceArtisansDirectory.Domain.Enums
+@{
+    ViewData["Title"] = "Service Requests";
+}
+
+<div style="max-width:820px;">
+    <p class="text-muted">Accept, decline, or complete requests clients have sent you.</p>
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+    }
+
+    @if (Model.Requests.Count == 0)
+    {
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <div class="empty-body">
+                    <div class="empty-title">No received requests</div>
+                    <div class="empty-desc">You haven't received any service requests yet.</div>
+                    <div class="empty-actions">
+                        <a class="btn-artisan-primary" asp-page="/Requests/Create">Create a request</a>
+                    </div>
+                </div>
+            </div>
+    }
+    else
+    {
+        @foreach (var request in Model.Requests)
+        {
+            <div class="artisan-card card-flat mb-3">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div>
+                        <strong>@request.Title</strong>
+                        <span style="color:var(--color-text-secondary);"> — from @request.ClientName</span>
+                    </div>
+                    @switch (request.Status)
+                    {
+                        case ServiceRequestStatus.Pending:
+                            <span class="badge-artisan badge-pending">Pending</span>
+                            break;
+                        case ServiceRequestStatus.Accepted:
+                            <span class="badge-artisan badge-verified">Accepted</span>
+                            break;
+                        case ServiceRequestStatus.Declined:
+                            <span class="badge-artisan" style="background-color:var(--color-danger-bg);color:var(--color-danger);border:1px solid var(--color-danger);">Declined</span>
+                            break;
+                        case ServiceRequestStatus.Completed:
+                            <span class="badge-artisan badge-neutral">Completed</span>
+                            break;
+                        case ServiceRequestStatus.Cancelled:
+                            <span class="badge-artisan badge-neutral">Cancelled</span>
+                            break;
+                    }
+                </div>
+                <p style="font-size:0.85rem;color:var(--color-text-secondary);margin:0.35rem 0;">
+                    Received @request.CreatedOn.ToString("MMMM d, yyyy")
+                    @if (request.PreferredDate.HasValue)
+                    {
+                        <text> · client prefers @request.PreferredDate.Value.ToString("MMMM d, yyyy")</text>
+                    }
+                </p>
+
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                    <a class="btn-artisan-outline btn-sm-artisan" asp-page="/Requests/Index" asp-route-expand="@request.Id">View Details &amp; History</a>
+
+                    @if (request.Status == ServiceRequestStatus.Pending)
+                    {
+                        <form method="post" asp-page-handler="Accept" asp-route-requestId="@request.Id">
+                            <button type="submit" class="btn-artisan-primary btn-sm-artisan">Accept</button>
+                        </form>
+                        <button type="button" class="btn-artisan-danger btn-sm-artisan" onclick="document.getElementById('decline-@request.Id').classList.toggle('d-none')">Decline</button>
+                    }
+
+                    @if (request.Status == ServiceRequestStatus.Accepted)
+                    {
+                        <form method="post" asp-page-handler="Complete" asp-route-requestId="@request.Id">
+                            <button type="submit" class="btn-artisan-primary btn-sm-artisan">Mark Complete</button>
+                        </form>
+                    }
+                </div>
+
+                @if (request.Status == ServiceRequestStatus.Pending)
+                {
+                    <form method="post" asp-page-handler="Decline" asp-route-requestId="@request.Id" id="decline-@request.Id" class="d-none artisan-form mt-2" style="border-top:1px solid var(--color-border);padding-top:0.75rem;">
+                        <label>Reason for declining</label>
+                        <textarea class="form-control" name="reason" rows="2" required></textarea>
+                        <button type="submit" class="btn-artisan-danger btn-sm-artisan">Confirm Decline</button>
+                    </form>
+                }
+
+                @if (Model.ExpandedRequest is not null && Model.ExpandedRequest.Id == request.Id)
+                {
+                    <div style="border-top:1px solid var(--color-border);margin-top:0.75rem;padding-top:0.75rem;">
+                        <p style="margin-bottom:0.5rem;">@Model.ExpandedRequest.Description</p>
+                        <strong style="font-size:0.9rem;">Status history</strong>
+                        <ul style="list-style:none;padding-left:0;font-size:0.9rem;">
+                            @foreach (var entry in Model.ExpandedRequest.StatusHistory)
+                            {
+                                <li style="padding:0.3rem 0;border-bottom:1px solid var(--color-border);">
+                                    <strong>@entry.ToStatus</strong> by @entry.ChangedByName on @entry.ChangedOn.ToString("MMM d, yyyy h:mm tt")
+                                    @if (!string.IsNullOrEmpty(entry.Notes))
+                                    {
+                                        <div style="color:var(--color-text-secondary);">@entry.Notes</div>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>

@@ -1,0 +1,110 @@
+@page
+@using UnifiedFreelanceArtisansDirectory.Domain.Enums
+@model UnifiedFreelanceArtisansDirectory.Areas.ServiceProvider.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@if (Model.Profile is null)
+{
+    <div class="alert-artisan alert-artisan-danger">Your service provider profile could not be found.</div>
+}
+else
+{
+    <p class="text-muted">Welcome back, @User.Identity!.Name.</p>
+
+    @switch (Model.Profile.ApprovalStatus)
+    {
+        case ApprovalStatus.Draft:
+            <div class="alert-artisan">Your profile is a draft and isn't visible to clients yet. Complete it and submit for approval from the profile editor.</div>
+            break;
+        case ApprovalStatus.PendingApproval:
+            <div class="alert-artisan">Your profile is pending administrator review.</div>
+            break;
+        case ApprovalStatus.Rejected:
+            <div class="alert-artisan alert-artisan-danger">Your last submission wasn't approved. Update your profile and resubmit.</div>
+            break;
+    }
+
+    <div class="row g-3 mb-4 fade-in">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card accent-amber">
+                <div class="stat-card-icon"><partial name="_Icon" model="@("reviews")" /></div>
+                <div>
+                    <div class="stat-card-label">Rating</div>
+                    <div class="stat-card-value">@Model.Profile.AverageRating.ToString("0.0")</div>
+                    <div class="stat-card-meta">@Model.Profile.ReviewCount reviews</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card accent-purple">
+                <div class="stat-card-icon"><partial name="_Icon" model="@("requests")" /></div>
+                <div>
+                    <div class="stat-card-label">Pending Requests</div>
+                    <div class="stat-card-value">@Model.PendingRequestCount</div>
+                    <div class="stat-card-meta"><a asp-page="/Requests/Index">Review now &rarr;</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card accent-emerald">
+                <div class="stat-card-icon"><partial name="_Icon" model="@("profile")" /></div>
+                <div>
+                    <div class="stat-card-label">Profile Completion</div>
+                    <div class="stat-card-value">@Model.Profile.ProfileCompletionPercentage%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card accent-teal">
+                <div class="stat-card-icon"><partial name="_Icon" model="@("find")" /></div>
+                <div>
+                    <div class="stat-card-label">Profile Views</div>
+                    <div class="stat-card-value">@Model.Profile.ProfileViews</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4 fade-in">
+        <div class="col-lg-4 col-md-6">
+            <div class="stat-card accent-blue">
+                <div class="stat-card-icon"><partial name="_Icon" model="@("portfolio")" /></div>
+                <div>
+                    <div class="stat-card-label">Portfolio Items</div>
+                    <div class="stat-card-value">@Model.Profile.PortfolioItems.Count</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="stat-card accent-emerald">
+                <div class="stat-card-icon"><partial name="_Icon" model="@("approvals")" /></div>
+                <div>
+                    <div class="stat-card-label">Verification</div>
+                    <div class="stat-card-value">@(Model.Profile.IsVerified ? "Verified" : "Unverified")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="stat-card accent-purple">
+                <div class="stat-card-icon"><partial name="_Icon" model="@("dashboard")" /></div>
+                <div>
+                    <div class="stat-card-label">Approval Status</div>
+                    <div class="stat-card-value">@Model.Profile.ApprovalStatus</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 flex-wrap fade-in">
+        <a class="btn-artisan-primary" asp-page="/Profile/Edit">Edit My Profile</a>
+        <a class="btn-artisan-outline" asp-page="/Portfolio/Index">Manage Portfolio</a>
+        <a class="btn-artisan-outline" asp-page="/Reviews/Index">Reviews</a>
+        <a class="btn-artisan-outline" asp-page="/Requests/Index">Service Requests</a>
+        @if (Model.Profile.ApprovalStatus == ApprovalStatus.Approved)
+        {
+            <a class="btn-artisan-outline" asp-area="" asp-page="/ServiceProviderDetails" asp-route-id="@Model.Profile.Id">View Public Profile</a>
+        }
+    </div>
+}

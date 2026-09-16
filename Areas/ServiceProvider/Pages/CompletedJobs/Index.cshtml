@@ -1,0 +1,40 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.ServiceProvider.Pages.CompletedJobs.IndexModel
+@{
+    ViewData["Title"] = "Completed Jobs";
+}
+
+@if (Model.CompletedJobs.Count == 0)
+{
+    <div class="artisan-card card-flat">
+        <div class="empty-state">
+            <div class="empty-icon">🛠️</div>
+            <div class="empty-body">
+                <div class="empty-title">No completed jobs yet</div>
+                <div class="empty-desc">You haven't completed any jobs yet — they'll appear here after you mark requests complete.</div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <table class="table-artisan">
+        <thead>
+            <tr>
+                <th>Job</th>
+                <th>Client</th>
+                <th>Requested</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var job in Model.CompletedJobs)
+            {
+                <tr>
+                    <td>@job.Title</td>
+                    <td>@job.ClientName</td>
+                    <td>@job.CreatedOn.ToString("MMM d, yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

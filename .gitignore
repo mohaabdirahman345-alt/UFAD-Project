@@ -1,0 +1,19 @@
+bin/
+obj/
+.vs/
+node_modules/
+
+*.user
+*.suo
+
+appsettings.Production.json
+
+# Local development secrets
+appsettings.Local.json
+
+# Visual Studio / VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

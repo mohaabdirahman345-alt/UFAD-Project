@@ -1,0 +1,51 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Admin.Pages.Requests.IndexModel
+@using UnifiedFreelanceArtisansDirectory.Domain.Enums
+@{
+    ViewData["Title"] = "Service Requests";
+}
+
+<p style="color:var(--color-text-muted);max-width:640px;">A platform-wide view of every request sent between clients and service providers.</p>
+
+<table class="table-artisan" style="margin-top:1rem;">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Client</th>
+            <th>Service Provider</th>
+            <th>Status</th>
+            <th>Sent</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model.Requests)
+        {
+            <tr>
+                <td>@request.Title</td>
+                <td>@request.ClientName</td>
+                <td>@request.ServiceProviderName</td>
+                <td>
+                    @switch (request.Status)
+                    {
+                        case ServiceRequestStatus.Pending:
+                            <span class="badge-artisan badge-pending">Pending</span>
+                            break;
+                        case ServiceRequestStatus.Accepted:
+                            <span class="badge-artisan badge-verified">Accepted</span>
+                            break;
+                        case ServiceRequestStatus.Declined:
+                            <span class="badge-artisan" style="background-color:var(--color-danger-bg);color:var(--color-danger);">Declined</span>
+                            break;
+                        case ServiceRequestStatus.Completed:
+                            <span class="badge-artisan badge-neutral">Completed</span>
+                            break;
+                        case ServiceRequestStatus.Cancelled:
+                            <span class="badge-artisan badge-neutral">Cancelled</span>
+                            break;
+                    }
+                </td>
+                <td>@request.CreatedOn.ToString("MMM d, yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

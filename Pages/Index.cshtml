@@ -1,0 +1,424 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- ======================================================
+     HERO — full-width cinematic, Fiverr-style
+     ====================================================== -->
+<section class="lp-hero">
+    <div class="lp-hero__overlay"></div>
+    <div class="lp-hero__bg" style="background-image:url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80')"></div>
+
+    <div class="container lp-hero__inner">
+        <div class="lp-hero__badge">
+            <span class="lp-hero__badge-dot"></span>
+            Garowe, Puntland · Trusted Local Directory
+        </div>
+        <h1 class="lp-hero__headline">
+            Find the right<br><em>expert</em>, right here.
+        </h1>
+        <p class="lp-hero__sub">
+            Electricians, tailors, developers, photographers and more —<br>
+            verified profiles, real reviews, and a simple way to get work done.
+        </p>
+
+        <form method="get" asp-page="/Browse" class="lp-hero__search" role="search" aria-label="Find service providers">
+            <div class="lp-hero__search-inner">
+                <svg class="lp-hero__search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <label class="visually-hidden" for="hero-keyword">Search</label>
+                <input id="hero-keyword" class="lp-hero__search-input" type="text" name="Keyword"
+                       placeholder="What service do you need? e.g. electrician, web design…" autocomplete="off" />
+                <select name="CategoryId" class="lp-hero__search-select" aria-label="Category">
+                    <option value="">All categories</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+                <button type="submit" class="lp-hero__search-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    Search
+                </button>
+            </div>
+        </form>
+
+        <div class="lp-hero__popular">
+            <span class="lp-hero__popular-label">Popular:</span>
+            <a asp-page="/Browse" asp-route-Keyword="electrician" class="lp-hero__popular-tag">Electrician</a>
+            <a asp-page="/Browse" asp-route-Keyword="tailor" class="lp-hero__popular-tag">Tailor</a>
+            <a asp-page="/Browse" asp-route-Keyword="carpenter" class="lp-hero__popular-tag">Carpenter</a>
+            <a asp-page="/Browse" asp-route-Keyword="web design" class="lp-hero__popular-tag">Web Design</a>
+            <a asp-page="/Browse" asp-route-Keyword="photographer" class="lp-hero__popular-tag">Photographer</a>
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================
+     TRUST STRIP — stats bar
+     ====================================================== -->
+<section class="lp-trust">
+    <div class="container lp-trust__inner">
+        <div class="lp-trust__item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            <strong>Admin-verified</strong> profiles only
+        </div>
+        <div class="lp-trust__divider"></div>
+        <div class="lp-trust__item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <strong>Real reviews</strong> from verified clients
+        </div>
+        <div class="lp-trust__divider"></div>
+        <div class="lp-trust__item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <strong>Zero platform fees</strong> — agree directly
+        </div>
+        <div class="lp-trust__divider"></div>
+        <div class="lp-trust__item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <strong>Local community</strong> — Garowe focused
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================
+     CATEGORIES — visual card grid
+     ====================================================== -->
+<section class="lp-section lp-section--white">
+    <div class="container">
+        <div class="lp-section__head">
+            <span class="lp-label">Browse by category</span>
+            <h2 class="lp-section__title">What kind of help do you need?</h2>
+        </div>
+        <div class="lp-categories">
+            @{
+                // Keys match EXACT seeded category names. Photo IDs are verified Unsplash images.
+                var catPhotos = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+                    ["Carpentry"]            = "photo-1504307651254-35680f356dfd", // carpenter with wood planks
+                    ["Electrical Work"]      = "photo-1621905251189-08b45d6a269e", // electrician at fuse box
+                    ["Plumbing"]             = "photo-1607472586893-edb57bdc0e39", // plumber fixing pipes under sink
+                    ["Tailoring"]            = "photo-1558769132-cb1aea458c5e",    // tailor at sewing machine
+                    ["Masonry & Construction"]= "photo-1503387762-592deb58ef4e",   // bricklayer / construction site
+                    ["Auto Mechanics"]       = "photo-1489824904134-891ab64532f1", // mechanic under car hood
+                    ["Painting & Decoration"]= "photo-1562259929-b4e1fd3aef09",    // painter with roller on wall
+                    ["Photography"]          = "photo-1516035069371-29a1b244cc32", // DSLR camera close-up
+                };
+                var fallbackPhoto = "photo-1521737604893-d14cc237f11d";
+                var catIcons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+                    ["Carpentry"]             = "🪵",
+                    ["Electrical Work"]       = "⚡",
+                    ["Plumbing"]              = "🔧",
+                    ["Tailoring"]             = "🧵",
+                    ["Masonry & Construction"]= "🏗️",
+                    ["Auto Mechanics"]        = "🔩",
+                    ["Painting & Decoration"] = "🖌️",
+                    ["Photography"]           = "📸",
+                };
+            }
+
+            @foreach (var category in Model.Categories)
+            {
+                var photoId = catPhotos.ContainsKey(category.Name) ? catPhotos[category.Name] : fallbackPhoto;
+                var icon = catIcons.ContainsKey(category.Name) ? catIcons[category.Name] : "🛠️";
+                var imgUrl = $"https://images.unsplash.com/{photoId}?auto=format&fit=crop&w=600&q=75";
+                <a class="lp-cat-img-card" asp-page="/Browse" asp-route-categoryId="@category.Id"
+                   aria-label="Browse @category.Name">
+                    <div class="lp-cat-img-card__bg" style="background-image:url('@imgUrl')"></div>
+                    <div class="lp-cat-img-card__overlay"></div>
+                    <div class="lp-cat-img-card__content">
+                        <span class="lp-cat-img-card__icon">@icon</span>
+                        <span class="lp-cat-img-card__name">@category.Name</span>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+
+<!-- ======================================================
+     FEATURED SERVICE PROVIDERS
+     ====================================================== -->
+<section class="lp-section lp-section--gray">
+    <div class="container">
+        <div class="lp-section__head lp-section__head--split">
+            <div>
+                <span class="lp-label">Hand-picked</span>
+                <h2 class="lp-section__title">Top-rated professionals</h2>
+            </div>
+            <a asp-page="/Browse" class="lp-see-all">See all providers →</a>
+        </div>
+
+        @if (Model.FeaturedServiceProviders.Count == 0)
+        {
+            <p class="lp-empty">New profiles are being added — check back soon.</p>
+        }
+        else
+        {
+            <div class="lp-providers">
+                @foreach (var sp in Model.FeaturedServiceProviders)
+                {
+                    <a class="lp-provider-card" asp-page="/ServiceProviderDetails" asp-route-id="@sp.Id">
+                        <div class="lp-provider-card__top">
+                            @if (!string.IsNullOrEmpty(sp.ProfileImagePath))
+                            {
+                                <img src="@sp.ProfileImagePath" alt="@sp.FullName" class="lp-provider-card__avatar" />
+                            }
+                            else
+                            {
+                                <div class="lp-provider-card__avatar lp-provider-card__avatar--initials">
+                                    @sp.FullName.Substring(0, 1)
+                                </div>
+                            }
+                            @if (sp.IsVerified)
+                            {
+                                <span class="lp-provider-card__verified" title="Verified">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                </span>
+                            }
+                        </div>
+                        <div class="lp-provider-card__body">
+                            <div class="lp-provider-card__name">@sp.FullName</div>
+                            <div class="lp-provider-card__headline">@sp.Headline</div>
+                            <div class="lp-provider-card__meta">
+                                <span class="lp-provider-card__stars">
+                                    ★ <strong>@sp.AverageRating.ToString("0.0")</strong>
+                                    <span class="lp-provider-card__count">(@sp.ReviewCount)</span>
+                                </span>
+                                <span class="lp-provider-card__cat">@sp.CategoryName</span>
+                            </div>
+                        </div>
+                        <div class="lp-provider-card__cta">View Profile →</div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<!-- ======================================================
+     HOW IT WORKS
+     ====================================================== -->
+<section class="lp-section lp-section--white">
+    <div class="container">
+        <div class="lp-section__head lp-section__head--center">
+            <span class="lp-label">Simple process</span>
+            <h2 class="lp-section__title">How UFAD works</h2>
+            <p class="lp-section__sub">From search to done — in three easy steps.</p>
+        </div>
+        <div class="lp-steps">
+            <div class="lp-step">
+                <div class="lp-step__num">1</div>
+                <div class="lp-step__icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <h3 class="lp-step__title">Search & compare</h3>
+                <p class="lp-step__desc">Browse verified providers by category, skill, rating, and availability.</p>
+            </div>
+            <div class="lp-step__connector" aria-hidden="true">
+                <svg width="40" height="16" viewBox="0 0 40 16" fill="none"><path d="M0 8h36M30 2l8 6-8 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="lp-step">
+                <div class="lp-step__num">2</div>
+                <div class="lp-step__icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <h3 class="lp-step__title">Send a request</h3>
+                <p class="lp-step__desc">Describe your job and send it directly from the provider's profile page.</p>
+            </div>
+            <div class="lp-step__connector" aria-hidden="true">
+                <svg width="40" height="16" viewBox="0 0 40 16" fill="none"><path d="M0 8h36M30 2l8 6-8 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="lp-step">
+                <div class="lp-step__num">3</div>
+                <div class="lp-step__icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h3 class="lp-step__title">Get it done</h3>
+                <p class="lp-step__desc">The provider accepts, completes the work, then you leave an honest review.</p>
+            </div>
+        </div>
+
+        <div class="lp-steps__cta">
+            <a class="lp-btn-primary" asp-page="/Browse">Start browsing experts</a>
+            <a class="lp-btn-outline" asp-area="Identity" asp-page="/Account/Register">Become a provider</a>
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================
+     TESTIMONIALS
+     ====================================================== -->
+@if (Model.Testimonials.Count > 0)
+{
+    <section class="lp-section lp-section--dark">
+        <div class="container">
+            <div class="lp-section__head lp-section__head--center lp-section__head--on-dark">
+                <span class="lp-label lp-label--light">Real voices</span>
+                <h2 class="lp-section__title lp-section__title--light">What clients are saying</h2>
+            </div>
+            <div class="lp-testimonials">
+                @foreach (var t in Model.Testimonials)
+                {
+                    <div class="lp-testimonial">
+                        <div class="lp-testimonial__stars">★★★★★</div>
+                        <p class="lp-testimonial__body">"@t.Comment"</p>
+                        <div class="lp-testimonial__author">
+                            <div class="lp-testimonial__avatar">@t.ClientName.Substring(0,1)</div>
+                            <div>
+                                <div class="lp-testimonial__name">@t.ClientName</div>
+                                <div class="lp-testimonial__meta">on @t.ServiceProviderName's work</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- ======================================================
+     WHY UFAD
+     ====================================================== -->
+<section id="why-ufad" class="lp-section lp-section--white">
+    <div class="container">
+        <div class="lp-section__head lp-section__head--center">
+            <span class="lp-label">Our mission</span>
+            <h2 class="lp-section__title">Why choose UFAD Garowe?</h2>
+            <p class="lp-section__sub">A platform where trust is earned, not assumed.</p>
+        </div>
+        <div class="lp-why-grid">
+            <div class="lp-why-card">
+                <div class="lp-why-card__icon" style="--why-color:#2563EB">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <h4 class="lp-why-card__title">Verified Professionals</h4>
+                <p class="lp-why-card__desc">Every provider is manually reviewed before appearing in search. No fakes, no guesswork.</p>
+            </div>
+            <div class="lp-why-card">
+                <div class="lp-why-card__icon" style="--why-color:#F59E0B">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <h4 class="lp-why-card__title">Real Client Reviews</h4>
+                <p class="lp-why-card__desc">Only clients who completed a job request can leave a review. Honest, earned feedback.</p>
+            </div>
+            <div class="lp-why-card">
+                <div class="lp-why-card__icon" style="--why-color:#22C55E">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <h4 class="lp-why-card__title">Zero Platform Fees</h4>
+                <p class="lp-why-card__desc">Agree on pricing directly with your provider. UFAD never takes a cut.</p>
+            </div>
+            <div class="lp-why-card">
+                <div class="lp-why-card__icon" style="--why-color:#7C3AED">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h4 class="lp-why-card__title">Community First</h4>
+                <p class="lp-why-card__desc">Built for Garowe's economy — connecting local talent with local clients.</p>
+            </div>
+            <div class="lp-why-card">
+                <div class="lp-why-card__icon" style="--why-color:#DB2777">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <h4 class="lp-why-card__title">Simple & Fast</h4>
+                <p class="lp-why-card__desc">Search, compare, and send a request in under 2 minutes. No complicated forms.</p>
+            </div>
+            <div class="lp-why-card">
+                <div class="lp-why-card__icon" style="--why-color:#0284C7">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
+                </div>
+                <h4 class="lp-why-card__title">Direct Communication</h4>
+                <p class="lp-why-card__desc">Talk directly with providers through job requests. No delays, no middleman.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================
+     FAQ
+     ====================================================== -->
+<section id="faq" class="lp-section lp-section--gray">
+    <div class="container">
+        <div class="lp-section__head lp-section__head--center">
+            <span class="lp-label">Have questions?</span>
+            <h2 class="lp-section__title">Frequently Asked Questions</h2>
+        </div>
+        <div class="lp-faq">
+            <div class="lp-faq__item">
+                <button class="lp-faq__q" aria-expanded="false">
+                    <span>What is UFAD Garowe?</span>
+                    <svg class="lp-faq__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="lp-faq__a">UFAD Garowe is a local platform connecting clients with verified freelance professionals and skilled artisans in Garowe — electricians, carpenters, tailors, developers, and more.</div>
+            </div>
+            <div class="lp-faq__item">
+                <button class="lp-faq__q" aria-expanded="false">
+                    <span>How do I hire a service provider?</span>
+                    <svg class="lp-faq__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="lp-faq__a">Browse or search for a professional, view their profile and reviews, then click "Send Request" to describe your job. The provider will respond directly to you.</div>
+            </div>
+            <div class="lp-faq__item">
+                <button class="lp-faq__q" aria-expanded="false">
+                    <span>How are service providers verified?</span>
+                    <svg class="lp-faq__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="lp-faq__a">Every provider submits a complete profile that is manually reviewed by our admin team before being approved and made visible in search.</div>
+            </div>
+            <div class="lp-faq__item">
+                <button class="lp-faq__q" aria-expanded="false">
+                    <span>Is UFAD Garowe free?</span>
+                    <svg class="lp-faq__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="lp-faq__a">Yes. Both clients and providers can join for free. We don't charge platform fees — all pricing is agreed directly between you and the provider.</div>
+            </div>
+            <div class="lp-faq__item">
+                <button class="lp-faq__q" aria-expanded="false">
+                    <span>Can I register as a service provider?</span>
+                    <svg class="lp-faq__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="lp-faq__a">Absolutely! Sign up, select "Service Provider", fill in your profile with skills and experience, and submit for admin review. Once approved you'll appear in search results.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================
+     BOTTOM CTA BAND
+     ====================================================== -->
+<section class="lp-cta-band">
+    <div class="container lp-cta-band__inner">
+        <div>
+            <h2 class="lp-cta-band__title">Ready to get started?</h2>
+            <p class="lp-cta-band__sub">Join hundreds of professionals and clients already using UFAD Garowe.</p>
+        </div>
+        <div class="lp-cta-band__actions">
+            <a class="lp-btn-primary lp-btn-primary--large" asp-page="/Browse">Find an Expert</a>
+            <a class="lp-btn-ghost" asp-area="Identity" asp-page="/Account/Register">Become a Provider</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+// FAQ accordion
+document.querySelectorAll('.lp-faq__q').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        document.querySelectorAll('.lp-faq__q').forEach(b => {
+            b.setAttribute('aria-expanded', 'false');
+            b.closest('.lp-faq__item').classList.remove('open');
+        });
+        if (!expanded) {
+            btn.setAttribute('aria-expanded', 'true');
+            btn.closest('.lp-faq__item').classList.add('open');
+        }
+    });
+});
+</script>
+}

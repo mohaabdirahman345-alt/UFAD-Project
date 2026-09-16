@@ -1,0 +1,64 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Admin.Pages.Categories.IndexModel
+@{
+    ViewData["Title"] = "Manage Categories";
+}
+
+    <p class="text-muted">Add, edit, and activate the trade categories service providers select from.</p>
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert-artisan alert-artisan-success">@Model.StatusMessage</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <form method="post" asp-page-handler="Create" class="artisan-card artisan-form">
+                <h3 style="font-size:1.05rem;">Add category</h3>
+                <div asp-validation-summary="ModelOnly" class="text-danger-artisan mb-2"></div>
+                <label asp-for="NewCategory.Name">Name</label>
+                <input asp-for="NewCategory.Name" class="form-control" />
+                <label asp-for="NewCategory.Description">Description</label>
+                <textarea asp-for="NewCategory.Description" rows="2" class="form-control"></textarea>
+                <label asp-for="NewCategory.IconClass">Icon class</label>
+                <input asp-for="NewCategory.IconClass" class="form-control" placeholder="icon-carpentry" />
+                <button type="submit" class="btn-artisan-primary">Add Category</button>
+            </form>
+        </div>
+
+        <div class="col-lg-8">
+            <table class="table-artisan">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <tr>
+                            <td><strong>@category.Name</strong></td>
+                            <td style="max-width:280px;">@category.Description</td>
+                            <td>
+                                @if (category.IsActive)
+                                {
+                                    <span class="badge-artisan badge-verified">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-artisan badge-neutral">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <form method="post" asp-page-handler="ToggleActive" asp-route-categoryId="@category.Id" asp-route-isActive="@category.IsActive" class="d-inline">
+                                    <button type="submit" class="btn-artisan-outline btn-sm-artisan">@(category.IsActive ? "Deactivate" : "Activate")</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>

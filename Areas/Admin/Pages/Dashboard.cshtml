@@ -1,0 +1,181 @@
+@page
+@model UnifiedFreelanceArtisansDirectory.Areas.Admin.Pages.DashboardModel
+@using System.Text.Json
+@using UnifiedFreelanceArtisansDirectory.Domain.Enums
+@{
+    ViewData["Title"] = "Dashboard";
+
+    var monthLabels = JsonSerializer.Serialize(Model.MonthlyRequests.Select(m => m.Label));
+    var monthCounts = JsonSerializer.Serialize(Model.MonthlyRequests.Select(m => m.Count));
+    var categoryLabels = JsonSerializer.Serialize(Model.TopCategories.Select(c => c.Category));
+    var categoryCounts = JsonSerializer.Serialize(Model.TopCategories.Select(c => c.Count));
+    var statusLabels = JsonSerializer.Serialize(Model.StatusDistribution.Select(s => s.Status));
+    var statusCounts = JsonSerializer.Serialize(Model.StatusDistribution.Select(s => s.Count));
+}
+
+<div class="dashboard-header mb-4 fade-in">
+    
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a class="btn-artisan-outline" asp-page="/Reports/Index">Review reports</a>
+        <a class="btn-artisan-outline" asp-page="/Approvals/Index">Pending approvals</a>
+        <a class="btn-artisan-outline" asp-page="/Requests/Index">All requests</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4 fade-in">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card accent-blue">
+            <div class="stat-card-icon"><partial name="_Icon" model="@("providers")" /></div>
+            <div>
+                <div class="stat-card-label">Service Providers</div>
+                <div class="stat-card-value">@Model.ServiceProviderCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card accent-amber">
+            <div class="stat-card-icon"><partial name="_Icon" model="@("users")" /></div>
+            <div>
+                <div class="stat-card-label">Clients</div>
+                <div class="stat-card-value">@Model.ClientCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card accent-emerald">
+            <div class="stat-card-icon"><partial name="_Icon" model="@("approvals")" /></div>
+            <div>
+                <div class="stat-card-label">Pending Approval</div>
+                <div class="stat-card-value">@Model.PendingApprovalCount</div>
+                <div class="stat-card-meta"><a asp-page="/Approvals/Index">Review now &rarr;</a></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card accent-rose">
+            <div class="stat-card-icon"><partial name="_Icon" model="@("reports")" /></div>
+            <div>
+                <div class="stat-card-label">Pending Reports</div>
+                <div class="stat-card-value">@Model.PendingReportCount</div>
+                <div class="stat-card-meta"><a asp-page="/Reports/Index">Review now &rarr;</a></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="row g-3 mb-4 fade-in">
+    <div class="col-lg-5">
+        <div class="chart-card">
+            <h3>Monthly Service Requests</h3>
+            <p class="chart-subtitle">Requests submitted over the last six months</p>
+            <div class="chart-canvas-wrap"><canvas id="monthlyRequestsChart" height="220"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="chart-card">
+            <h3>Most Requested Categories</h3>
+            <p class="chart-subtitle">By total requests received</p>
+            <div class="chart-canvas-wrap"><canvas id="categoriesChart" height="220"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="chart-card">
+            <h3>Request Status</h3>
+            <p class="chart-subtitle">Current distribution</p>
+            <div class="chart-canvas-wrap"><canvas id="statusChart" height="220"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="artisan-card card-flat fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3 class="card-title">Recent service requests</h3>
+        <a asp-page="/Requests/Index">View all &rarr;</a>
+    </div>
+    @if (Model.RecentRequests.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📨</div>
+            <div class="empty-body">
+                <div class="empty-title">No requests yet</div>
+                <div class="empty-desc">No service requests have been submitted recently.</div>
+                <div class="empty-actions">
+                    <a class="btn-artisan-primary" asp-page="/Requests/Index">View requests</a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <table class="table-artisan">
+            <thead>
+                <tr><th>Title</th><th>Client</th><th>Provider</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.RecentRequests)
+                {
+                    <tr>
+                        <td>@r.Title</td>
+                        <td>@r.ClientName</td>
+                        <td>@r.ServiceProviderName</td>
+                        <td><span class="badge-artisan badge-neutral">@r.Status</span></td>
+                        <td>@r.CreatedOn.ToString("MMM d")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Read CSS tokens for chart colors to keep charts in sync with the design system.
+        const root = getComputedStyle(document.documentElement);
+        const primary = root.getPropertyValue('--color-primary').trim() || '#2563EB';
+        const accent = root.getPropertyValue('--color-accent').trim() || '#F59E0B';
+        const success = root.getPropertyValue('--color-success').trim() || '#22C55E';
+        const neutral = root.getPropertyValue('--color-border').trim() || '#E2E8F0';
+
+        new Chart(document.getElementById('monthlyRequestsChart'), {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(monthLabels),
+                datasets: [{
+                    label: 'Requests',
+                    data: @Html.Raw(monthCounts),
+                    borderColor: primary,
+                    backgroundColor: primary.replace('#','rgba(') ? primary : 'rgba(37,99,235,0.08)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: neutral } }, x: { grid: { display: false } } }
+            }
+        });
+
+        new Chart(document.getElementById('categoriesChart'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(categoryLabels),
+                datasets: [{ data: @Html.Raw(categoryCounts), backgroundColor: accent, borderRadius: 4 }]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, grid: { color: neutral } }, y: { grid: { display: false } } }
+            }
+        });
+
+        new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(statusLabels),
+                datasets: [{ data: @Html.Raw(statusCounts), backgroundColor: [primary, accent, success, 'var(--color-gray-400)', 'var(--color-danger)'] }]
+            },
+            options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+        });
+    </script>
+}
