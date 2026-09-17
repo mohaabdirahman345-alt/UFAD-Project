@@ -1,125 +1,108 @@
-# Deploying UFAD Garowe to Azure (free tier)
+# Deploying UFAD Garowe to MonsterASP.NET (free tier)
 
-This deploys the app to Azure App Service (Linux, free F1 tier) with Azure
-SQL Database's free offer, using the GitHub Actions workflow at
-`.github/workflows/azure-deploy.yml`. Total cost: $0, as long as you stay
-within the free-tier limits described below.
+This deploys the app to MonsterASP.NET's Free Hosting plan (Windows/IIS,
+free subdomain) with a free MSSQL database, using the GitHub Actions
+workflow at `.github/workflows/monsterasp-deploy.yml`. Total cost: $0 —
+MonsterASP's free plan requires no credit card at signup.
 
-Everything here is done in the Azure Portal / GitHub UI by you — an AI
-assistant can't create accounts, enter payment details, or generate
-secrets on your behalf.
+Verified against MonsterASP.NET's own documentation before starting this:
+.NET Core 9 and Razor Pages are explicitly supported, the default IIS
+hosting model (InProcess) needs no project changes, and their
+`Environment Variables` feature uses the same `Key__NestedKey` convention
+ASP.NET Core already reads out of the box — so nothing here required
+rewriting the app or its database provider.
 
-## 1. Create an Azure account
+Everything below is done by you in the MonsterASP Control Panel / GitHub
+UI — account creation, and anything requiring your credentials, isn't
+something an AI assistant should do on your behalf.
 
-Go to https://azure.microsoft.com/free and sign up. Azure asks for a
-card for identity verification even for free-tier resources — you won't
-be charged unless you explicitly upgrade a resource past its free limits.
+## 1. Create your free account
 
-## 2. Create a resource group
+Go to https://monsterasp.net → **Try for FREE** → enter your email only
+(no credit card, no other personal info required). Your login details
+are emailed to you.
 
-Portal → **Resource groups** → **Create**. Any name (e.g. `ufad-garowe-rg`),
-any region close to you (e.g. `East US` or `UAE North`).
+## 2. Create the website
 
-## 3. Create the database — Azure SQL free offer
+Control Panel → **Websites** → **Add website** → choose **Free** →
+pick a name → you'll get a subdomain like
+`https://yoursite.runasp.net` (or `.tryasp.net`).
 
-Portal → **Create a resource** → **SQL Database**.
+## 3. Create the database
 
-- **Resource group**: the one from step 2
-- **Database name**: `Unified`
-- **Server**: create new
-  - Server name: anything globally unique, e.g. `ufad-garowe-sql`
-  - Authentication: **SQL authentication**
-  - Admin login: choose one (e.g. `ufadadmin`) and a strong password —
-    **save both**, you'll need them below
-- **Workload environment**: Development
-- **Compute + storage**: click **Configure database**, choose the
-  **Free offer** (serverless, up to 100,000 vCore-seconds/month and 32 GB —
-  one per Azure subscription). If you don't see it, look for a banner/link
-  offering the free SQL Database tier on the pricing tier screen.
+Control Panel → **Databases** → **Add database** → choose **Free** →
+type **MSSQL**. Note the server name, database name, login, and password
+shown after creation (or find them again under the database's **Users
+and remote** section).
 
-After it's created: open the new **SQL server** (not the database) →
-**Networking** → under "Firewall rules" enable **Allow Azure services and
-resources to access this server** → Save.
+## 4. Set the connection string and passwords as Environment Variables
 
-## 4. Create the web app
-
-Portal → **Create a resource** → **Web App**.
-
-- **Resource group**: same as above
-- **Name**: globally unique, e.g. `ufad-garowe` → your URL will be
-  `https://ufad-garowe.azurewebsites.net`
-- **Publish**: Code
-- **Runtime stack**: **.NET 9 (STS)**
-- **Operating System**: Linux
-- **Pricing plan**: click **Explore pricing plans** → pick **F1 (Free)**
-
-## 5. Configure the connection string
-
-On the new Web App → **Settings → Environment variables** (older portals:
-**Configuration**) → **Connection strings** tab → **New connection string**:
-
-- Name: `DefaultConnection`
-- Value:
-  ```
-  Server=tcp:<your-server-name>.database.windows.net,1433;Initial Catalog=Unified;Persist Security Info=False;User ID=<your-admin-login>;Password=<your-admin-password>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-  ```
-- Type: **SQLAzure**
-
-Save. Azure exposes this to the app in the exact format ASP.NET Core's
-configuration system already expects — no code change needed.
-
-## 6. Set the admin/demo passwords (the security fix that made this safe)
-
-Same **Environment variables / Configuration** page → **Application
-settings** tab → add:
+Control Panel → **Websites** → select your site → **Manage website** →
+**Scripting** → **Environment Variables**. Add:
 
 | Name | Value |
 |---|---|
+| `ConnectionStrings__DefaultConnection` | `Server=<db-server-from-step-3>;Database=<db-name>;User Id=<db-login>;Password=<db-password>;TrustServerCertificate=True;` |
 | `Seed__AdminPassword` | a strong password **you** choose — this becomes the live admin login for `admin@garoweartisans.so` |
 | `Seed__DemoAccountPassword` | a different strong password for the seeded demo provider/client accounts |
 
-Without `Seed__AdminPassword` set, the app deliberately will **not** create
-an administrator account on a non-Development deployment (see
-`Data/Seed/DbInitializer.cs`) — this is intentional, since the old fixed
-demo password is published in the README and thesis appendix.
+Same reasoning as before: without `Seed__AdminPassword` set, the app
+will not create an administrator account outside local development,
+because the old fixed demo password is published in the README and
+thesis appendix (see `Data/Seed/DbInitializer.cs`).
 
-Save. The app will restart.
+## 5. Activate WebDeploy
 
-## 7. Get the publish profile
+Control Panel → your website → **Deploy (FTP/WebDeploy/Git)** →
+**WebDeploy** → **Enabled**. Note the four values shown — you'll need
+them in the next step:
 
-Web App → **Overview** → **Get publish profile** (downloads a `.PublishSettings` XML file).
+- Website name (e.g. `siteXXXX`)
+- Server computer name (e.g. `https://siteXXXX.siteasp.net:8172`)
+- Username
+- Password
 
-## 8. Wire up GitHub Actions
+## 6. Add GitHub secrets
 
-In your GitHub repo ([UFAD-Project](https://github.com/mohaabdirahman345-alt/UFAD-Project)):
+In your GitHub repo ([UFAD-Project](https://github.com/mohaabdirahman345-alt/UFAD-Project))
+→ **Settings → Secrets and variables → Actions → Secrets** → add these
+four, using the values from step 5:
 
-- **Settings → Secrets and variables → Actions → Secrets** → New repository secret:
-  - Name: `AZURE_WEBAPP_PUBLISH_PROFILE`
-  - Value: paste the entire contents of the `.PublishSettings` file from step 7
-- **Settings → Secrets and variables → Actions → Variables** → New repository variable:
-  - Name: `AZURE_WEBAPP_NAME`
-  - Value: the Web App name from step 4 (e.g. `ufad-garowe`)
+- `WEBSITE_NAME`
+- `SERVER_COMPUTER_NAME`
+- `SERVER_USERNAME`
+- `SERVER_PASSWORD`
 
-## 9. Deploy
+## 7. Deploy
 
-Push to `main` (or run the workflow manually from the **Actions** tab —
-it's already set to trigger on both). The workflow builds and publishes
-the app, then deploys it to Azure. First deploy takes a few minutes;
-watch progress under the **Actions** tab.
+Push to `main` (or run the workflow manually from the **Actions** tab).
+The workflow builds and publishes the app (`dotnet publish -r win-x86
+--self-contained false`, matching MonsterASP's documented IIS setup),
+then deploys it via WebDeploy using
+[rasmusbuchholdt/simply-web-deploy](https://github.com/rasmusbuchholdt/simply-web-deploy).
 
-## 10. Verify
+## 8. Verify
 
-Visit `https://<your-app-name>.azurewebsites.net`. On first request, the
-app applies EF Core migrations and seeds categories/skills/demo accounts
-automatically (`DbInitializer`) — the homepage should show the same
-directory you saw locally. Log in as `admin@garoweartisans.so` with the
-password you set in step 6.
+Visit your subdomain. On first request, `DbInitializer` applies EF Core
+migrations and seeds categories/skills/demo accounts automatically,
+exactly as it does locally — no separate migration step needed. Log in
+as `admin@garoweartisans.so` with the password you set in step 4.
 
-## Free-tier limits to know about
+## Things to check once it's live (couldn't verify these without an account)
 
-- **F1 App Service**: 60 CPU-minutes/day, no always-on (the app sleeps
-  after ~20 min idle and takes a few seconds to wake on the next request —
-  normal for a free tier, not a bug).
-- **Azure SQL free offer**: one per subscription, 100,000 vCore-seconds
-  and 32 GB/month; the database auto-pauses/scales down under light load
-  (serverless), which is fine for a demo site.
+- **HTTPS on the free subdomain**: MonsterASP's pricing table lists
+  "HTTPS (Let's Encrypt)" as a Premium-only feature, which is about
+  provisioning certificates for *custom* domains. Their own marketing
+  material shows free-style subdomains served over HTTPS by default
+  (a shared platform certificate), but I couldn't find a doc page
+  confirming this outright — check `https://` loads without a warning
+  once your site is up. If it doesn't, `app.UseHttpsRedirection()` in
+  `Program.cs` would need to be relaxed for the free tier.
+- **Idle behavior**: free-tier shared IIS app pools commonly recycle
+  after a period of inactivity (the free plan lists "Limited features
+  and traffic" without further detail) — the first request after a
+  quiet period may be a few seconds slower while the app pool restarts.
+  This doesn't affect availability, just first-hit latency.
+- **256 MB dedicated RAM** on the free plan is modest for an EF Core +
+  Identity app; fine for a demo/thesis-defense audience, worth knowing
+  if you later see performance issues under heavier concurrent load.
