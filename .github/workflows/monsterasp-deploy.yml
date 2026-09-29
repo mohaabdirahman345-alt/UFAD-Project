@@ -23,7 +23,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish --configuration Release --output ./publish --runtime win-x86 --self-contained false
+        run: dotnet publish --configuration Release --output ./publish --self-contained false
 
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.2.0
